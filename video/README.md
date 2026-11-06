@@ -1,29 +1,27 @@
-# EduCrew Miniature World reel — 15s (9:16) with music
+# EduCrew Academic Solutions — 30s cinematic miniature-world ad (9:16)
 
-`educrew-promo-15s.mp4`: 1080×1920, 30 fps, 15 s, H.264 + AAC stereo soundtrack.
+`educrew-miniature-ad-30s.mp4`: 1080×1920, 30 fps, 30 s, H.264 + AAC stereo music.
 
-| Time | Scene | On screen |
-|---|---|---|
-| 0–3s | Mathematics | Camera glides from the abacus/math book to the kids; numbers & operators swirl up from the book |
-| 3–6s | English Language Arts | Glide across the reading corner; letters rise from the storybook |
-| 6–9s | Science | Glide to the young scientist; atoms, bubbles, H₂O swirl from the flask |
-| 9–12s | Academic Content Studio | Glide across the laptop & LMS storyboards; checkmarks and play icons rise |
-| 12–15s | End card | Logo pops on the music hit, tagline, subjects, services, contact, "Let's build better learning" |
+| Time | Scene | Camera | On-screen text |
+|---|---|---|---|
+| 0–5s | EduCrew academic workspace (hand places the sign; original logo appears on it) | zoom in, glide left→right | Big ideas begin with great academic design. |
+| 5–10s | Mathematics curriculum studio (teacher at whiteboard) | track left→right, push into workbook | Mathematics \| Curriculum \| Concept-based Learning |
+| 10–15s | ELA library continuing into the science corner | pan left→right, zoom out | English Language Arts \| Science \| Learning Resources |
+| 15–20s | Curriculum office: map, assessments, hand placing a sheet | zoom into documents, pull back | Standards Alignment \| Assessment Design \| Instructional Design |
+| 20–25s | Digital learning studio, specialists collaborating | right→left, zoom out | Curriculum Development to LMS-ready Content |
+| 25–30s | Studio softens into the brand background; large logo; contact details | settle | Final card (exact wording) |
 
-Each scene has an animated caption card (title, subject chips, icon), story-style progress bar,
-brand pill, light flash on cuts, and twinkles.
+Brand rules: the original `assets/educrew-logo.png` is only ever scaled uniformly (never redrawn or
+recoloured). It sits as a watermark top-right until the large centred logo takes over at 25.3s.
+All text is typeset in the edit; the scene images contain no generated text or fake logos.
 
 ## Files
-- `scene.js`: all animation (scene list, camera moves, captions, end card text).
-- `assets/plates/*.jpg`: scene artwork taken from the reference reel.
-- `music.py`: synthesises the original, royalty-free soundtrack (`assets/music.wav`), 120 BPM,
-  one chord per scene, whooshes into each cut, hit at 12s.
-- `render.cjs`: renders frames in headless Chromium and muxes the music with ffmpeg.
+- `assets/mini/*.jpg`: photoreal miniature-diorama scene images (generated with Figma AI, upscaled 1.5×).
+- `scene.js`: camera keys, captions, watermark, end card. `music.py`: original 30s soundtrack.
+- `render.cjs`: renders in headless Chromium and muxes `assets/music.wav`.
 
-## Edit and re-render
 ```
-python3 music.py assets/music.wav   # only if you change the music
-node render.cjs                     # writes educrew-promo-15s.mp4
-node render.cjs --stills 1.5,7,13   # PNG frames for checking
+python3 music.py assets/music.wav
+node render.cjs                      # -> educrew-miniature-ad-30s.mp4
+node render.cjs --stills 2,12,27     # PNG frames
 ```
-Preview live: `python3 -m http.server` in this folder, open `index.html`.

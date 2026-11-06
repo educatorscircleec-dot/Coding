@@ -1,7 +1,9 @@
-"""Synthesises an original, royalty-free 15s background track for the reel.
+"""Synthesises an original, royalty-free 30s background track for the ad.
 
-Upbeat 120 BPM marimba/glockenspiel groove, one chord per 3s scene
-(C - Am - F - G - C), whooshes into each cut and a soft logo "hit" at 12s.
+Premium, upbeat 120 BPM marimba / glockenspiel / soft-pad bed with light
+percussion. One chord per 5s scene, a soft intro (no drums) for scene 1,
+whooshes into every cut (and the 12.5s library -> science move), and a warm
+resolve + logo hit at 25s for the brand reveal.
 Usage: python3 music.py [out.wav]
 """
 import sys
@@ -9,9 +11,10 @@ import wave
 import numpy as np
 
 SR = 48000
-DUR = 15.0
+DUR = 30.0
 BPM = 120
 BEAT = 60 / BPM
+SCENE = 5.0
 N = int(SR * DUR)
 L = np.zeros(N)
 R = np.zeros(N)
@@ -60,7 +63,7 @@ def bass(m, d=0.45):
 
 def pad(notes, d):
     t = tt(d)
-    env = np.minimum(1, t / 0.6) * np.minimum(1, (d - t) / 0.5)
+    env = np.minimum(1, t / 0.8) * np.minimum(1, (d - t) / 0.6)
     s = np.zeros_like(t)
     for m in notes:
         for det in (-0.004, 0.0, 0.004):
@@ -72,8 +75,7 @@ def pad(notes, d):
 def kick(d=0.35):
     t = tt(d)
     f = 45 + 90 * np.exp(-t * 30)
-    ph = 2 * np.pi * np.cumsum(f) / SR
-    return np.sin(ph) * np.exp(-t * 9)
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 9)
 
 
 def hp_noise(d, k=1):
@@ -91,71 +93,80 @@ def shaker(d=0.07):
 def clap():
     d = 0.2
     t = tt(d)
-    n = hp_noise(d, 1)
     env = np.exp(-t * 22)
     for off in (0.0, 0.011, 0.022):
         env += 0.6 * np.exp(-np.maximum(0, t - off) * 160) * (t >= off)
-    return n * env * 0.5
+    return hp_noise(d, 1) * env * 0.5
 
 
 def whoosh(d=0.6):
     t = tt(d)
     n = rng.standard_normal(len(t))
-    # moving one-pole lowpass whose cutoff sweeps upward
     out = np.zeros_like(n)
     a = 0.0
     for i in range(len(n)):
-        c = 0.02 + 0.5 * (i / len(n)) ** 2
-        a += c * (n[i] - a)
+        a += (0.02 + 0.5 * (i / len(n)) ** 2) * (n[i] - a)
         out[i] = a
-    env = (t / d) ** 2.2
-    return out / (np.abs(out).max() + 1e-9) * env
+    return out / (np.abs(out).max() + 1e-9) * (t / d) ** 2.2
 
 
-CHORDS = [  # (triad, bass note, glock hook)
-    ([60, 64, 67], 48, [76, 79, 81, 79]),
-    ([57, 60, 64], 45, [76, 72, 74, 76]),
-    ([53, 57, 60], 41, [77, 76, 72, 69]),
-    ([55, 59, 62], 43, [74, 79, 83, 86]),
+# (triad, bass note, glock hook) for scenes 1-5
+CHORDS = [
+    ([60, 64, 67], 48, [76, 79, 81, 79, 76]),
+    ([57, 60, 64], 45, [76, 72, 74, 76, 79]),
+    ([53, 57, 60], 41, [77, 76, 72, 74, 76]),
+    ([55, 59, 62], 43, [74, 79, 83, 81, 79]),
+    ([52, 55, 59], 40, [76, 79, 83, 86, 83]),  # Em -> lifts into the reveal
 ]
-ARP = [0, 1, 2, 3, 2, 1, 0, 1, 2, 3, 4, 3]
-HOOK_BEATS = [0, 1.5, 3, 4]
+ARP = [0, 1, 2, 3, 2, 1, 0, 1, 2, 3, 4, 3, 2, 1, 0, 1, 2, 3, 4, 3]  # 20 eighths = 5s
+HOOK = [0, 2, 4, 6, 8]
 
 for s, (tri, bn, hook) in enumerate(CHORDS):
-    t0 = s * 3.0
+    t0 = s * SCENE
     tones = tri + [tri[0] + 12, tri[1] + 12]
-    add(pad(tri + [tri[0] - 12], 3.3), t0, 0.16, 0.0)
+    intro = s == 0
+    add(pad(tri + [tri[0] - 12], SCENE + 0.4), t0, 0.18 if intro else 0.14)
     for k, idx in enumerate(ARP):
-        add(marimba(tones[idx]), t0 + k * BEAT / 2, 0.30 if k % 2 == 0 else 0.22, -0.35)
-    for b in (0, 1.5, 3, 4.5):
-        add(bass(bn), t0 + b * BEAT, 0.42)
-    for b, m in zip(HOOK_BEATS, hook):
-        add(glock(m), t0 + b * BEAT, 0.17, 0.4)
-    for b in range(6):
-        add(kick(), t0 + b * BEAT, 0.55 if b % 2 == 0 else 0.0)
-        if b % 2 == 1:
-            add(clap(), t0 + b * BEAT, 0.10, 0.1)
-    for e in range(12):
-        add(shaker(), t0 + e * BEAT / 2, 0.045 if e % 2 else 0.02, 0.5 if e % 2 else -0.5)
-    if s < 3:
-        add(whoosh(0.55), t0 + 3.0 - 0.55, 0.05, 0.0)
+        g = 0.28 if k % 2 == 0 else 0.20
+        if intro:
+            g *= min(1, 0.35 + k / 14)  # gentle build
+        add(marimba(tones[idx]), t0 + k * BEAT / 2, g, -0.35)
+    for b, m in zip(HOOK, hook):
+        add(glock(m), t0 + b * BEAT, 0.15, 0.4)
+    bass_beats = (0, 4, 8) if intro else (0, 1.5, 3, 4, 5.5, 7, 8, 9.5)
+    for b in bass_beats:
+        add(bass(bn), t0 + b * BEAT, 0.40)
+    if not intro:
+        for b in range(10):
+            if b % 2 == 0:
+                add(kick(), t0 + b * BEAT, 0.5)
+            else:
+                add(clap(), t0 + b * BEAT, 0.09, 0.1)
+        for e in range(20):
+            add(shaker(), t0 + e * BEAT / 2, 0.04 if e % 2 else 0.018, 0.5 if e % 2 else -0.5)
+    else:
+        for e in range(10, 20):  # shaker sneaks in during the second half of the intro
+            add(shaker(), t0 + e * BEAT / 2, 0.025 if e % 2 else 0.01, 0.5 if e % 2 else -0.5)
+    if s < 4:
+        add(whoosh(0.6), t0 + SCENE - 0.6, 0.05)
+add(whoosh(0.45), 12.5 - 0.45, 0.035)  # library -> science glide
 
-# 12s: logo hit and gentle outro on C major
-add(whoosh(0.7), 12.0 - 0.7, 0.07)
-add(kick(0.6), 12.0, 0.7)
-add(pad([48, 60, 64, 67, 72], 3.0), 12.0, 0.22)
+# 25s: brand reveal - riser, hit, warm C major resolve and outro
+add(whoosh(0.9), 25.0 - 0.9, 0.07)
+add(kick(0.6), 25.0, 0.65)
+add(pad([48, 60, 64, 67, 72], 5.0), 25.0, 0.24)
+add(bass(36, 2.5), 25.0, 0.45)
 for i, m in enumerate([72, 76, 79, 84]):
-    add(glock(m, 2.5), 12.0 + i * 0.09, 0.16, 0.4 - i * 0.25)
-for k, m in enumerate([60, 64, 67, 72, 67, 64, 72, 76]):
-    add(marimba(m, 1.2), 12.5 + k * BEAT / 2, 0.18, -0.3)
-add(bass(36, 2.0), 12.0, 0.45)
-add(glock(84, 2.5), 13.5, 0.14, 0.2)
+    add(glock(m, 2.5), 25.0 + i * 0.09, 0.15, 0.4 - i * 0.25)
+for k, m in enumerate([60, 64, 67, 72, 67, 64, 72, 76, 79, 76, 72, 67]):
+    add(marimba(m, 1.2), 25.5 + k * BEAT / 2, 0.16 * (1 - k / 16), -0.3)
+add(glock(84, 2.5), 27.0, 0.12, 0.2)
+add(glock(79, 2.5), 28.0, 0.08, -0.2)
 
 mix = np.stack([L, R], 1)
-# soft compression + fade in/out
 mix = np.tanh(mix * 1.3) / np.tanh(1.3)
 t = np.arange(N) / SR
-fade = np.minimum(1, t / 0.08) * np.clip((DUR - t) / 1.3, 0, 1) ** 1.5
+fade = np.minimum(1, t / 0.08) * np.clip((DUR - t) / 2.0, 0, 1) ** 1.5
 mix *= fade[:, None]
 mix *= 0.89 / np.abs(mix).max()
 

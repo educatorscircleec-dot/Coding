@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
 
 const args = Object.fromEntries(process.argv.slice(2).reduce((a, v, i, arr) => (v.startsWith('--') ? a.concat([[v.slice(2), arr[i + 1]]]) : a), []));
 const FPS = +(args.fps || 30);
-const OUT = path.resolve(__dirname, args.out || 'educrew-promo-15s.mp4');
+const OUT = path.resolve(__dirname, args.out || 'educrew-miniature-ad-30s.mp4');
 const MUSIC = path.join(__dirname, 'assets', 'music.wav');
 const STILLS = args.stills ? args.stills.split(',').map(Number) : null;
 
