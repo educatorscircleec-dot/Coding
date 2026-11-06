@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EduCrew Studio Promo</title>
+<style>
+  :root { --bg: #0d2238; --fg: #f5f1e8; --accent: #e8b03a; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg); font-family: Inter, system-ui, sans-serif; }
+  .wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px; }
+  canvas { height: min(80vh, 160vw); aspect-ratio: 9 / 16; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.5); background: #000; }
+  .bar { display: flex; gap: 10px; align-items: center; width: min(100%, 45vh); }
+  button { background: var(--accent); color: var(--bg); border: 0; border-radius: 8px; padding: 8px 14px; font-weight: 800; cursor: pointer; }
+  input[type=range] { flex: 1; accent-color: var(--accent); }
+  .t { font-variant-numeric: tabular-nums; min-width: 52px; text-align: right; }
+  body.render .wrap { padding: 0; } body.render .bar { display: none; }
+  body.render canvas { height: auto; width: 1080px; border-radius: 0; box-shadow: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <canvas id="c" width="1080" height="1920"></canvas>
+  <div class="bar">
+    <button id="play">Pause</button>
+    <input id="scrub" type="range" min="0" max="15" step="0.01" value="0">
+    <span class="t" id="time">0.00s</span>
+  </div>
+</div>
+<script src="scene.js"></script>
+<script>
+  if (location.search.includes('render')) document.body.classList.add('render');
+  else window.ready.then(() => {
+    let playing = true, t = 0, last = performance.now();
+    const btn = document.getElementById('play'), sc = document.getElementById('scrub'), tl = document.getElementById('time');
+    btn.onclick = () => { playing = !playing; btn.textContent = playing ? 'Pause' : 'Play'; last = performance.now(); };
+    sc.oninput = () => { t = +sc.value; renderAt(t); tl.textContent = t.toFixed(2) + 's'; };
+    (function loop(now) {
+      if (playing) { t = (t + (now - last) / 1000) % DUR; renderAt(t); sc.value = t; tl.textContent = t.toFixed(2) + 's'; }
+      last = now; requestAnimationFrame(loop);
+    })(performance.now());
+  });
+</script>
+</body>
+</html>
