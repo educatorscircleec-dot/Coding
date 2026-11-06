@@ -1,17 +1,29 @@
-# EduCrew Academic Studio — 15s promo (9:16)
+# EduCrew Miniature World reel — 15s (9:16) with music
 
-`educrew-promo-15s.mp4` — 1080×1920, 30 fps, 15 s, no audio.
+`educrew-promo-15s.mp4`: 1080×1920, 30 fps, 15 s, H.264 + AAC stereo soundtrack.
 
-| Time | Shot |
-|---|---|
-| 0–2.5s | A hand lowers the miniature EduCrew Academic Studio onto an oak desk (tea steaming beside it) |
-| 2.5–4.5s | The hand places a tiny desk, a laptop with an LMS storyboard, and a curriculum-map whiteboard; the logo lights up the sign |
-| 4.5–7s | Camera glides across the Math, English and Science shelves |
-| 7–10.5s | A fingertip taps the workbook; it opens and numbers, letters, shapes and atoms swirl up like steam |
-| 10.5–12.5s | A hand slides in a tray: teacher guide, student workbook, marked assessment, LMS tablet |
-| 12.5–15s | Scene dims; logo, subjects and @educrew.academicsolution fade in |
+| Time | Scene | On screen |
+|---|---|---|
+| 0–3s | Mathematics | Camera glides from the abacus/math book to the kids; numbers & operators swirl up from the book |
+| 3–6s | English Language Arts | Glide across the reading corner; letters rise from the storybook |
+| 6–9s | Science | Glide to the young scientist; atoms, bubbles, H₂O swirl from the flask |
+| 9–12s | Academic Content Studio | Glide across the laptop & LMS storyboards; checkmarks and play icons rise |
+| 12–15s | End card | Logo pops on the music hit, tagline, subjects, services, contact, "Let's build better learning" |
+
+Each scene has an animated caption card (title, subject chips, icon), story-style progress bar,
+brand pill, light flash on cuts, and twinkles.
+
+## Files
+- `scene.js`: all animation (scene list, camera moves, captions, end card text).
+- `assets/plates/*.jpg`: scene artwork taken from the reference reel.
+- `music.py`: synthesises the original, royalty-free soundtrack (`assets/music.wav`), 120 BPM,
+  one chord per scene, whooshes into each cut, hit at 12s.
+- `render.cjs`: renders frames in headless Chromium and muxes the music with ffmpeg.
 
 ## Edit and re-render
-- Preview: serve this folder (`python3 -m http.server`) and open `index.html` (play/pause + scrubber).
-- Timing, camera moves and art are all in `scene.js` (`CAM`, `ITEMS`, `HK2`, `HK3`, `trayY`).
-- Render: `node render.cjs` (needs Playwright + ffmpeg). `node render.cjs --stills 4,9,14` saves PNG frames.
+```
+python3 music.py assets/music.wav   # only if you change the music
+node render.cjs                     # writes educrew-promo-15s.mp4
+node render.cjs --stills 1.5,7,13   # PNG frames for checking
+```
+Preview live: `python3 -m http.server` in this folder, open `index.html`.

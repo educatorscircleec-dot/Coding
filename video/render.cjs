@@ -1,4 +1,5 @@
 // Renders scene.js frame-by-frame in headless Chromium and encodes an MP4.
+// Muxes assets/music.wav (from music.py) as the soundtrack when present.
 // Usage: node render.cjs [--fps 30] [--out educrew-promo-15s.mp4] [--stills 0,3,6,9,12,14.5]
 const http = require('http');
 const fs = require('fs');
@@ -9,6 +10,7 @@ const { chromium } = require('playwright');
 const args = Object.fromEntries(process.argv.slice(2).reduce((a, v, i, arr) => (v.startsWith('--') ? a.concat([[v.slice(2), arr[i + 1]]]) : a), []));
 const FPS = +(args.fps || 30);
 const OUT = path.resolve(__dirname, args.out || 'educrew-promo-15s.mp4');
+const MUSIC = path.join(__dirname, 'assets', 'music.wav');
 const STILLS = args.stills ? args.stills.split(',').map(Number) : null;
 
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.png': 'image/png' };
@@ -36,6 +38,7 @@ const server = http.createServer((req, res) => {
     const dur = await page.evaluate(() => window.DUR);
     const n = Math.round(dur * FPS);
     const ff = spawn('ffmpeg', ['-y', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-',
+      ...(fs.existsSync(MUSIC) ? ['-i', MUSIC, '-c:a', 'aac', '-b:a', '192k', '-map', '0:v', '-map', '1:a', '-shortest'] : []),
       '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', OUT], { stdio: ['pipe', 'inherit', 'inherit'] });
     for (let i = 0; i < n; i++) {
       const buf = Buffer.from(await grab(i / FPS, 'image/jpeg'), 'base64');
