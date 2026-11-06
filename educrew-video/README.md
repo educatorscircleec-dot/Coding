@@ -13,17 +13,16 @@ Output: `EduCrew_Miniature_30s.mp4`.
 | 25–30 s | The team walks to the centre; the camera rises and pulls back; the lights dim; the logo and contact details appear | Your Academic Development Partner + contact details |
 
 ## The logo
-There was no logo file to work from, so the video shows a plain **"EC" stand-in
-badge** as the watermark (upper right) and on the final screen.
-To use the original logo, save it as **`assets/logo.png`** (a transparent PNG is
-best) and rebuild. It is drawn at its own proportions and is never stretched.
+The original EduCrew logo (`assets/logo.png`, transparent PNG) appears in three places: a fixed
+watermark in the upper right for the whole video, the plaque above the door, and large in the
+centre of the final screen. It is drawn at its own proportions and is never stretched or redrawn.
 
 ## Rebuild
 ```bash
-node render.js frames                 # 900 JPEG frames (Playwright + Chromium)
+node render.js frames                 # 900 JPEG frames (Playwright + Chromium, served over local HTTP)
 python3 music.py music.wav            # instrumental bed + ambience + swooshes
 ffmpeg -y -framerate 30 -i frames/f%04d.jpg -i music.wav \
-  -c:v libx264 -pix_fmt yuv420p -crf 18 -preset slow -movflags +faststart \
+  -c:v libx264 -b:v 9M -maxrate 12M -bufsize 18M -pix_fmt yuv420p -movflags +faststart \
   -c:a aac -b:a 192k -shortest EduCrew_Miniature_30s.mp4
 ```
-Preview in a browser: open `scene.html` (it loops), or `scene.html?t=12.5` for a single frame.
+Preview: `node stills.js out 3 12.5 29` writes stills at those times.
