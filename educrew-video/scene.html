@@ -3,7 +3,7 @@
 <style>html,body{margin:0;background:#000}canvas{display:block}#gl{display:none}#out{width:540px;height:960px}</style>
 <script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
 </head><body>
-<canvas id="gl" width="1080" height="1920"></canvas>
+<canvas id="gl"></canvas>
 <canvas id="out" width="1080" height="1920"></canvas>
 <script type="module">
 // EduCrew Academic Solutions — 30 s vertical miniature-world commercial, rendered in real-time 3D.
@@ -19,6 +19,8 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 const W = 1080, H = 1920;
+const RS = parseFloat(new URLSearchParams(location.search).get('rs') || '1'); // 3D render scale
+const GW = Math.round(W * RS), GH = Math.round(H * RS);
 const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
 const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 const lerp = (a, b, e) => a + (b - a) * e;
@@ -33,7 +35,7 @@ const SANS = '"Inter", "Liberation Sans", sans-serif';
 // ---------------------------------------------------------------- renderer
 const glCanvas = document.getElementById('gl');
 const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(1); renderer.setSize(W, H, false);
+renderer.setPixelRatio(1); renderer.setSize(GW, GH, false);
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.92;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -705,12 +707,12 @@ function camAt(t) {
 }
 
 // ---------------------------------------------------------------- post-processing
-const rt = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType, samples: 4 });
+const rt = new THREE.WebGLRenderTarget(GW, GH, { type: THREE.HalfFloatType, samples: 4 });
 const composer = new EffectComposer(renderer, rt);
 composer.addPass(new RenderPass(scene, camera));
 const bokeh = new BokehPass(scene, camera, { focus: 3, aperture: .006, maxblur: .012 });
 composer.addPass(bokeh);
-composer.addPass(new UnrealBloomPass(new THREE.Vector2(W / 2, H / 2), .22, .4, 1.7));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(GW / 2, GH / 2), .22, .4, 1.7));
 composer.addPass(new OutputPass());
 composer.addPass(new ShaderPass({ uniforms: { tDiffuse: { value: null } }, vertexShader: 'varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
   fragmentShader: `uniform sampler2D tDiffuse; varying vec2 vUv; void main(){ vec3 c=texture2D(tDiffuse,vUv).rgb; float l=dot(c,vec3(.299,.587,.114)); c=mix(vec3(l),c,1.25); c=(c-.5)*1.1+.5; c*=vec3(1.03,1.0,.96);
@@ -795,7 +797,7 @@ window.renderFrame = function (t) {
   bokeh.uniforms.aperture.value = fd < 1.2 ? .007 : .0045;
   bokeh.uniforms.maxblur.value = .008;
   composer.render();
-  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(glCanvas, 0, 0);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(glCanvas, 0, 0, W, H);
   ctx.fillStyle = `rgba(0,0,0,${.15 * ease(t, 26.0, 27.2)})`; ctx.fillRect(0, 0, W, H);
   captions(ctx, t); finalCard(ctx, t); watermark(ctx);
   const fin = 1 - ease(t, 0, .5); if (fin > 0) { ctx.fillStyle = `rgba(0,0,0,${fin})`; ctx.fillRect(0, 0, W, H); }
