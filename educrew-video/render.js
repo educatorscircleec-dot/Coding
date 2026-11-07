@@ -10,9 +10,9 @@ const path = require('path'); const fs = require('fs'); const serve = require('.
     const p = await b.newPage({ viewport: { width: 1080, height: 1920 } });
     p.on('pageerror', e => console.error('PAGEERR', e.message));
     await p.goto(srv.url);
-    await p.evaluate(() => document.fonts.ready); await p.evaluate(() => window.logoReady());
+    await p.waitForFunction(() => window.logoReady); await p.evaluate(() => window.logoReady());
     for (let f = w; f < N; f += P) {
-      const d = await p.evaluate(t => { window.renderFrame(t); return document.getElementById('c').toDataURL('image/jpeg', .94); }, f / FPS);
+      const d = await p.evaluate(t => { window.renderFrame(t); return document.getElementById('out').toDataURL('image/jpeg', .94); }, f / FPS);
       fs.writeFileSync(path.join(out, `f${String(f).padStart(4, '0')}.jpg`), Buffer.from(d.split(',')[1], 'base64'));
     }
   }));

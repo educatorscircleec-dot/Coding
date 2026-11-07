@@ -1,6 +1,10 @@
 # EduCrew Academic Solutions — 30 s miniature-world spot
 
 Vertical 1080×1920, 30 fps, 30 s, with original instrumental music (no vocals).
+
+The miniature world is a real 3D scene rendered in code with Three.js: modelled figurines, furniture and props,
+physically based materials, soft shadows, depth-of-field blur, bloom and a colour grade.
+The palette comes from the EduCrew logo (teal, gold, navy, purple, green).
 Output: `EduCrew_Miniature_30s.mp4`.
 
 | Time | Scene | On-screen text |
@@ -19,7 +23,8 @@ centre of the final screen. It is drawn at its own proportions and is never stre
 
 ## Rebuild
 ```bash
-node render.js frames                 # 900 JPEG frames (Playwright + Chromium, served over local HTTP)
+npm install                           # three.js
+node render.js frames                 # 900 JPEG frames (Playwright + Chromium WebGL, served over local HTTP)
 python3 music.py music.wav            # instrumental bed + ambience + swooshes
 ffmpeg -y -framerate 30 -i frames/f%04d.jpg -i music.wav \
   -c:v libx264 -b:v 9M -maxrate 12M -bufsize 18M -pix_fmt yuv420p -movflags +faststart \

@@ -1,6 +1,6 @@
 // Tiny static server so the logo image doesn't taint the canvas (file:// does).
 const http = require('http'), fs = require('fs'), path = require('path');
-const TYPES = { '.html': 'text/html', '.png': 'image/png', '.js': 'text/javascript' };
+const TYPES = { '.html': 'text/html', '.png': 'image/png', '.js': 'text/javascript', '.mjs': 'text/javascript' };
 module.exports = () => new Promise(res => {
   const srv = http.createServer((q, r) => {
     const f = path.join(__dirname, decodeURIComponent(q.url.split('?')[0]));

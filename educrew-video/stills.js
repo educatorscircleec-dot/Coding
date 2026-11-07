@@ -8,9 +8,9 @@ const path = require('path'); const fs = require('fs'); const serve = require('.
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1080, height: 1920 } });
   p.on('pageerror', e => console.error('PAGEERR', e.message));
   await p.goto(srv.url);
-  await p.evaluate(() => document.fonts.ready); await p.evaluate(() => window.logoReady());
+  await p.waitForFunction(() => window.logoReady); await p.evaluate(() => window.logoReady());
   for (const t of times) {
-    const data = await p.evaluate(tt => { window.renderFrame(tt); return document.getElementById('c').toDataURL('image/jpeg', .85); }, parseFloat(t));
+    const data = await p.evaluate(tt => { window.renderFrame(tt); return document.getElementById('out').toDataURL('image/jpeg', .85); }, parseFloat(t));
     fs.writeFileSync(path.join(out, `t${t}.jpg`), Buffer.from(data.split(',')[1], 'base64'));
   }
   await b.close(); srv.close();

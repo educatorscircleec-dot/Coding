@@ -1,0 +1,15 @@
+{
+  "name": "educrew-video",
+  "version": "1.0.0",
+  "description": "Vertical 1080×1920, 30 fps, 30 s, with original instrumental music (no vocals). Output: `EduCrew_Miniature_30s.mp4`.",
+  "main": "render.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "three": "^0.170.0"
+  }
+}
