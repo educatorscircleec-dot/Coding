@@ -69,7 +69,7 @@ def cmd_keyframes(project: Project, args) -> int:
     style = project.style
     cfg = style.get("keyframe", {})
     name = args.provider or cfg.get("provider", "placeholder")
-    w, h = style.get("resolution", [832, 480])
+    w, h = project.resolution(args.episode)
     opts = {k: v for k, v in cfg.items() if k != "provider"} if name == cfg.get("provider") else {}
     prov = get_keyframe_provider(name, width=w, height=h, **opts)
     for i in _selected(project, args):
@@ -124,7 +124,7 @@ def cmd_assemble(project: Project, args) -> int:
             subs.append((t + n * seg, t + (n + 1) * seg, name, line["line"]))
         clips.append(clip)
         t += d
-    w, h = project.style.get("resolution", [832, 480])
+    w, h = project.resolution(args.episode)
     video = assemble.concat(clips, base / f"{ep.id}.mp4", project.style.get("fps", 16), (w, h))
     srt = assemble.write_srt(subs, base / f"{ep.id}.srt")
     print(f"wrote {video.relative_to(project.root)} ({t:.1f}s, {len(clips)} shots)")

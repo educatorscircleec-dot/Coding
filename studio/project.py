@@ -54,6 +54,7 @@ class Episode:
     title: str
     path: Path
     shots: list[Shot]
+    resolution: list[int] | None = None  # overrides style.yaml (e.g. vertical shorts)
 
 
 class Project:
@@ -75,7 +76,12 @@ class Project:
         path = self.root / "episodes" / ep_id
         data = _load_yaml(path / "shots.yaml")
         shots = [Shot.from_dict(s) for s in data.get("shots") or []]
-        return Episode(id=ep_id, title=data.get("title", ep_id), path=path, shots=shots)
+        return Episode(id=ep_id, title=data.get("title", ep_id), path=path, shots=shots,
+                       resolution=data.get("resolution"))
+
+    def resolution(self, ep_id: str) -> tuple[int, int]:
+        w, h = self.episode(ep_id).resolution or self.style.get("resolution", [832, 480])
+        return int(w), int(h)
 
     def validate(self, ep_id: str) -> list[str]:
         """Return a list of problems (empty list means the episode is valid)."""
