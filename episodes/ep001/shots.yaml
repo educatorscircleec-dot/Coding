@@ -1,0 +1,59 @@
+episode: ep001
+title: The Flickering Lantern
+
+# Each shot becomes one keyframe image and one ~3-5 s animated clip.
+# Fields:
+#   id          unique, sortable (s010, s020... leaves room to insert s015)
+#   location    id of a file in locations/
+#   characters  ids of files in characters/
+#   framing     camera framing for the keyframe (wide, medium, close-up...)
+#   action      what we SEE in the frame
+#   motion      what MOVES (sent to the image-to-video model)
+#   dialogue    optional; used for subtitles / voice later
+#   duration    seconds (Wan 2.2 supports roughly 1-5 s per clip)
+shots:
+  - id: s010
+    location: lane
+    characters: []
+    framing: wide establishing shot
+    action: lanterns along the lane glowing at dusk, one lantern flickering
+    motion: lanterns flicker on one by one, slow push in down the lane
+    duration: 4
+
+  - id: s020
+    location: workshop
+    characters: [pip]
+    framing: medium shot
+    action: Pip polishing a paper lantern at the workbench, humming
+    motion: Pip rolls side to side while polishing, lanterns sway gently
+    duration: 4
+
+  - id: s030
+    location: workshop
+    characters: [mrs_alder]
+    framing: medium shot from inside, door in frame
+    action: Mrs. Alder stepping through the door holding a weakly flickering lantern
+    motion: door swings open, Mrs. Alder steps in, lantern light flickers
+    dialogue:
+      - { character: mrs_alder, line: "It's been sulking all week." }
+    duration: 4
+
+  - id: s040
+    location: workshop
+    characters: [pip]
+    framing: close-up
+    action: Pip's big teal eye widening in surprise
+    motion: eye widens, antenna wiggles, slight head tilt
+    dialogue:
+      - { character: pip, line: "Sulking? Lanterns don't sulk! ...Do they?" }
+    duration: 3
+
+  - id: s050
+    location: workshop
+    characters: [pip, mrs_alder]
+    framing: two-shot, medium wide
+    action: Pip and Mrs. Alder holding the lantern together, it glows bright gold
+    motion: lantern brightens from dim to golden glow, both characters smile
+    dialogue:
+      - { character: mrs_alder, line: "Some things work better with two hands." }
+    duration: 5

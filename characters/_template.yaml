@@ -1,0 +1,11 @@
+# Copy to characters/<id>.yaml. The file name (without .yaml) is the id used in shots.
+name: Character Name
+role: protagonist | supporting | guest
+# The ONLY text that reaches the image model. Keep it short, concrete and visual.
+# Repeat the same wording every time; consistency here = consistency on screen.
+visual: >-
+  short description of silhouette, colours, clothing, distinguishing features
+personality: a few words for writers (not sent to the model)
+voice: notes for voice casting / TTS (e.g. "bright, quick, slightly squeaky")
+# Optional: a reference image to use for this character in the keyframe step
+reference_image: null

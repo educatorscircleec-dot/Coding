@@ -1,0 +1,8 @@
+name: Pip
+role: protagonist
+visual: >-
+  Pip, a small round copper repair-robot with one large glowing teal eye, stubby arms,
+  a tiny wrench antenna on its head, rolling on a single wheel, patched blue scarf
+personality: curious, eager, a little impatient, never gives up
+voice: bright and quick, slight mechanical warble
+reference_image: null

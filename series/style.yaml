@@ -1,0 +1,25 @@
+# Global look of the series. Prepended/appended to every generated prompt.
+title: Lantern Lane
+aspect_ratio: "16:9"
+resolution: [832, 480]       # width, height for keyframes (Wan 2.2 likes ~832x480)
+fps: 16
+
+style_prompt: >-
+  2D hand-painted storybook animation, soft watercolor textures, warm amber lantern light,
+  rounded friendly shapes, gentle film grain, cozy evening palette of teal, amber and plum
+
+negative_prompt: >-
+  photorealistic, 3d render, text, watermark, subtitles, logo, extra limbs, deformed hands,
+  blurry, low quality, jpeg artifacts, harsh shadows, horror
+
+# Default motion wording for the image-to-video step when a shot gives none.
+default_motion: smooth gentle animation, subtle camera movement, characters move naturally
+
+# Generation settings
+keyframe:
+  provider: placeholder      # placeholder | huggingface
+  model: black-forest-labs/FLUX.1-schnell
+animate:
+  provider: placeholder      # placeholder | wan
+  steps: 6
+  seed: 42

@@ -1,0 +1,8 @@
+# Generated media (large; regenerate from the YAML instead of committing)
+output/
+
+__pycache__/
+*.egg-info/
+.venv/
+.pytest_cache/
+.env
