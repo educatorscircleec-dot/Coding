@@ -1,0 +1,12 @@
+# The EduCrew host, drawn from your own sticker art in brand/stickers/.
+# Rename her here (name:) and the subtitles will use the new name.
+name: Host
+role: protagonist
+visual: >-
+  a cheerful chibi girl in a pastel pink floral hijab, big round glasses, a purple dress,
+  dark leggings and purple-and-white sneakers, bold clean cartoon outlines
+personality: curious, warm, encouraging, loves learning
+voice: bright, friendly, young
+reference_image: brand/stickers/pose_front.png
+tts_voice: af_heart
+tts_speed: 1.0

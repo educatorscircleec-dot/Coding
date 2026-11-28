@@ -1,105 +1,160 @@
+# 45 s vertical short. Host = your EduCrew character (brand/stickers/).
+# Scene images: AI background (output/short001/backgrounds/<id>.jpg) + sticker + logo,
+# built with `python -m studio compose short001`.
 episode: short001
 title: How Do Animals Sleep?
-resolution: [480, 832]   # vertical 9:16 for TikTok / Reels / YouTube Shorts
-
-# 45 s total. Hook in the first 3 s, one fact every ~5 s, a gag ending and a comment prompt.
+resolution:
+- 480
+- 832
 shots:
-  - id: s010
-    location: workshop
-    characters: [pip]
-    framing: close-up, vertical frame
-    action: Pip yawning, its big teal eye half closed, holding a dim lantern
-    motion: Pip does a big stretchy yawn, then its eye pops wide open with an idea
-    dialogue:
-      - { character: pip, line: "Wait... do ANIMALS get sleepy too?" }
-    duration: 4
-
-  - id: s020
-    location: workshop
-    characters: [pip]
-    framing: medium shot, vertical frame
-    action: Pip holding a paper lantern up high as it bursts into golden light
-    motion: lantern flares bright, light swirls outward and fills the frame
-    dialogue:
-      - { character: pip, line: "Lantern, show me!" }
-    duration: 4
-
-  - id: s030
-    location: lantern_dream
-    characters: [pip]
-    framing: wide shot, vertical frame
-    action: a pink flamingo asleep standing on one leg in a shallow pond, tiny Pip peeking from a lily pad
-    motion: flamingo sways gently on one leg, ripples spread across the water
-    dialogue:
-      - { character: pip, line: "Flamingos often sleep standing on ONE leg!" }
-    duration: 5
-
-  - id: s040
-    location: lantern_dream
-    characters: [pip]
-    framing: low angle, vertical frame
-    action: a cluster of small brown bats sleeping upside down from a branch, Pip tilting upside down to look
-    motion: bats wrap their wings tighter, Pip slowly tips upside down
-    dialogue:
-      - { character: pip, line: "Bats sleep upside down, hanging by their feet!" }
-    duration: 4
-
-  - id: s050
-    location: lantern_dream
-    characters: [pip]
-    framing: underwater medium shot, vertical frame
-    action: a dolphin resting near the surface with one eye closed and one eye open, Pip in a tiny bubble helmet
-    motion: dolphin drifts slowly, one eye blinks open, bubbles rise
-    dialogue:
-      - { character: pip, line: "Dolphins rest one half of their brain at a time. The other half keeps watch!" }
-    duration: 5
-
-  - id: s060
-    location: lantern_dream
-    characters: [pip]
-    framing: top-down shot, vertical frame
-    action: two sea otters floating on their backs holding paws while asleep, Pip floating on a cork nearby
-    motion: otters bob gently on the waves, paws stay linked
-    dialogue:
-      - { character: pip, line: "Sea otters hold paws so they don't drift apart!" }
-    duration: 5
-
-  - id: s070
-    location: lantern_dream
-    characters: [pip]
-    framing: tall full shot, vertical frame
-    action: a giraffe taking a quick nap with its neck curled back onto its body, Pip looking up in awe
-    motion: giraffe curls its long neck down to rest, then snaps awake
-    dialogue:
-      - { character: pip, line: "And giraffes? They take short little naps." }
-    duration: 5
-
-  - id: s080
-    location: workshop
-    characters: [pip]
-    framing: medium shot, vertical frame
-    action: Pip back in the workshop yawning hugely, the lantern dimming in its arms
-    motion: lantern light fades softly, Pip wobbles sleepily on its wheel
-    dialogue:
-      - { character: pip, line: "Okay... now I'M sleepy." }
-    duration: 4
-
-  - id: s090
-    location: workshop
-    characters: [mrs_alder, pip]
-    framing: medium two-shot, vertical frame
-    action: Mrs. Alder in a nightcap peeking through the doorway with a candle, drowsy Pip beside the bench
-    motion: Mrs. Alder leans in through the door, candle flame flickers
-    dialogue:
-      - { character: mrs_alder, line: "Badgers sleep in cozy tunnels, dear. And robots sleep... now." }
-    duration: 5
-
-  - id: s100
-    location: workshop
-    characters: [pip]
-    framing: close-up, vertical frame
-    action: Pip curled up asleep on a cushion, the lantern glowing softly beside it
-    motion: Pip's eye closes slowly, a tiny snore bubble, lantern dims to a soft glow
-    dialogue:
-      - { character: pip, line: "Which animal sleeps like YOU? Tell me..." }
-    duration: 4
+- id: s010
+  location: bedroom
+  characters:
+  - host
+  framing: close-up, vertical frame
+  action: the host with a thoughtful look, an idea lightbulb above her
+  motion: the host taps her chin, then her eyes light up with an idea
+  dialogue:
+  - character: host
+    line: Wait... do ANIMALS get sleepy too?
+  duration: 4
+  sticker: big_ideas
+  sticker_side: left
+  focus_x: 0.4
+  title: HOW DO ANIMALS SLEEP?
+- id: s020
+  location: bedroom
+  characters:
+  - host
+  framing: medium shot, vertical frame
+  action: the host holding a paper lantern up high as it bursts into golden light
+  motion: lantern flares bright, light swirls outward and fills the frame
+  dialogue:
+  - character: host
+    line: Lantern, show me!
+  duration: 4
+  sticker: lets_learn
+  sticker_side: center
+- id: s030
+  location: lantern_dream
+  characters:
+  - host
+  framing: wide shot, vertical frame
+  action: a pink flamingo asleep standing on one leg in a shallow pond, the host watching from the bank
+  motion: flamingo sways gently on one leg, ripples spread across the water
+  dialogue:
+  - character: host
+    line: Flamingos often sleep standing on ONE leg!
+  duration: 5
+  sticker: pose_front
+  sticker_side: left
+  sticker_scale: 0.36
+  focus_x: 0.15
+- id: s040
+  location: lantern_dream
+  characters:
+  - host
+  framing: low angle, vertical frame
+  action: a cluster of small brown bats sleeping upside down from a branch, the host looking up at them
+  motion: bats wrap their wings tighter, the host tilts her head curiously
+  dialogue:
+  - character: host
+    line: Bats sleep upside down, hanging by their feet!
+  duration: 4
+  sticker: pose_side
+  sticker_side: left
+  sticker_scale: 0.36
+- id: s050
+  location: lantern_dream
+  characters:
+  - host
+  framing: underwater medium shot, vertical frame
+  action: a dolphin resting near the surface with one eye closed and one eye open, the host watching from the shore
+  motion: dolphin drifts slowly, one eye blinks open, bubbles rise
+  dialogue:
+  - character: host
+    line: Dolphins rest one half of their brain at a time. The other half keeps watch!
+  duration: 5
+  sticker: pose_thinking
+  sticker_side: left
+  sticker_scale: 0.4
+  focus_x: 0.55
+- id: s060
+  location: lantern_dream
+  characters:
+  - host
+  framing: top-down shot, vertical frame
+  action: two sea otters floating on their backs holding paws while asleep, the host cheering nearby
+  motion: otters bob gently on the waves, paws stay linked
+  dialogue:
+  - character: host
+    line: Sea otters hold paws so they don't drift apart!
+  duration: 5
+  sticker: teamwork
+  sticker_side: center
+  focus_x: 0.45
+- id: s070
+  location: lantern_dream
+  characters:
+  - host
+  framing: tall full shot, vertical frame
+  action: a giraffe taking a quick nap with its neck curled back onto its body, the host looking up in
+    awe
+  motion: giraffe curls its long neck down to rest, then snaps awake
+  dialogue:
+  - character: host
+    line: And giraffes? They take short little naps.
+  duration: 5
+  sticker: pose_back
+  sticker_side: left
+  sticker_scale: 0.4
+  focus_x: 0.6
+- id: s080
+  location: bedroom
+  characters:
+  - host
+  framing: medium shot, vertical frame
+  action: the host at her desk with eyes closed and a mug of cocoa, the lantern dimming
+  motion: lantern light fades softly, the host nods off sleepily
+  dialogue:
+  - character: host
+    line: Okay... now I'M sleepy.
+  duration: 4
+  sticker: on_track
+  sticker_side: right
+  sticker_crop:
+  - 0
+  - 0
+  - 1
+  - 0.8
+  focus_x: 0.3
+- id: s090
+  location: bedroom
+  characters:
+  - mrs_alder
+  - host
+  framing: medium two-shot, vertical frame
+  action: Mrs. Alder in a nightcap peeking through the doorway with a candle, the host dozing happily hugging a heart
+  motion: Mrs. Alder leans in through the door, candle flame flickers
+  dialogue:
+  - character: mrs_alder
+    line: Badgers sleep in cozy tunnels, dear. And little learners sleep... now.
+  duration: 5
+  sticker: keep_growing
+  sticker_side: left
+  sticker_scale: 0.55
+  focus_x: 0.8
+- id: s100
+  location: bedroom
+  characters:
+  - host
+  framing: close-up, vertical frame
+  action: the host winking with a thumbs up, sleeping cartoon animals on clouds behind her
+  motion: the host winks, stars twinkle, clouds drift slowly
+  dialogue:
+  - character: host
+    line: Which animal sleeps like YOU? Tell me...
+  duration: 4
+  sticker: youve_got_this
+  sticker_side: center
+  logo_scale: 0.3

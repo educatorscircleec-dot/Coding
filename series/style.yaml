@@ -23,3 +23,8 @@ animate:
   provider: placeholder      # placeholder | wan
   steps: 6
   seed: 42
+
+# Your brand art, used by `python -m studio compose`
+brand:
+  logo: brand/logos/educrew.png
+  logo_scale: 0.2          # fraction of frame width

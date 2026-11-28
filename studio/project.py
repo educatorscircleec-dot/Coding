@@ -33,6 +33,7 @@ class Shot:
     motion: str
     duration: float
     dialogue: list[dict] = field(default_factory=list)
+    extra: dict = field(default_factory=dict)  # every field from shots.yaml, for optional steps
 
     @classmethod
     def from_dict(cls, d: dict) -> "Shot":
@@ -45,6 +46,7 @@ class Shot:
             motion=d.get("motion", ""),
             duration=float(d.get("duration", 4)),
             dialogue=list(d.get("dialogue") or []),
+            extra=dict(d),
         )
 
 
@@ -111,6 +113,9 @@ class Project:
                     errors.append(f"{where}: '{speaker}' speaks but is not listed in characters")
             if not s.action:
                 errors.append(f"{where}: missing 'action'")
+            st = s.extra.get("sticker")
+            if st and not (self.root / "brand" / "stickers" / f"{st}.png").exists():
+                errors.append(f"{where}: sticker '{st}' not found in brand/stickers/")
             if not 1 <= s.duration <= 5:
                 errors.append(f"{where}: duration {s.duration}s outside the 1-5 s clip range")
         return errors

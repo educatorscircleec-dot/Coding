@@ -4,6 +4,7 @@
     python -m studio prompts ep001
     python -m studio keyframes ep001 [--provider huggingface] [--only s020] [--force]
     python -m studio animate ep001   [--provider wan]         [--only s020] [--force]
+    python -m studio compose ep001   # AI backgrounds + your stickers + logo -> scenes
     python -m studio voice ep001     # dialogue -> speech (Kokoro, offline)
     python -m studio assemble ep001
     python -m studio render ep001       # keyframes + animate + assemble
@@ -173,6 +174,42 @@ def cmd_voice(project: Project, args) -> int:
     return 0
 
 
+def cmd_compose(project: Project, args) -> int:
+    """Background + brand sticker + logo -> scenes/<shot>.png (full size) and keyframes/."""
+    from . import compose
+
+    _require_valid(project, args.episode)
+    ep = project.episode(args.episode)
+    base = _ep_out(project, args.episode)
+    brand = project.style.get("brand", {})
+    logo = project.root / brand["logo"] if brand.get("logo") else None
+    w, h = project.resolution(args.episode)
+    full = tuple(brand.get("scene_size", [1080, 1920] if h > w else [1920, 1080]))
+    wanted = set(args.only or [s.id for s in ep.shots])
+    for s in ep.shots:
+        if s.id not in wanted:
+            continue
+        bg = next((p for p in (base / "backgrounds" / f"{s.id}{e}" for e in (".png", ".jpg"))
+                   if p.exists()), None)
+        if bg is None:
+            print(f"[{s.id}] no background in {(base / 'backgrounds').relative_to(project.root)}/",
+                  file=sys.stderr)
+            return 1
+        x = s.extra
+        sticker = project.root / "brand" / "stickers" / f"{x['sticker']}.png" \
+            if x.get("sticker") else None
+        out = compose.compose_scene(
+            bg, base / "scenes" / f"{s.id}.png", full, sticker=sticker,
+            side=x.get("sticker_side", "left"), scale=float(x.get("sticker_scale", 0.62)),
+            crop=x.get("sticker_crop"), focus_x=float(x.get("focus_x", 0.5)),
+            logo=logo, logo_scale=float(x.get("logo_scale", brand.get("logo_scale", 0.2))),
+            title=x.get("title"))
+        from PIL import Image
+        Image.open(out).resize((w, h), Image.LANCZOS).save(base / "keyframes" / f"{s.id}.png")
+        print(f"[{s.id}] {out.relative_to(project.root)}")
+    return 0
+
+
 def cmd_render(project: Project, args) -> int:
     args.provider = None
     for step in (cmd_keyframes, cmd_animate, cmd_assemble):
@@ -215,6 +252,7 @@ def main(argv: list[str] | None = None) -> int:
         ("animate", cmd_animate, True),
         ("render", cmd_render, False),
         ("voice", cmd_voice, False),
+        ("compose", cmd_compose, False),
     ]:
         sp = sub.add_parser(name)
         sp.add_argument("episode")
