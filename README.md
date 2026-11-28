@@ -74,7 +74,11 @@ Each shot in `shots.yaml` can set:
   in, flies from the whole world down to the region, and drops pins that pulse.
   The world outlines come from Natural Earth (public domain), stored in `studio/data/world.json`.
 
-Animated GIF stickers keep playing their frames, and still stickers pop in and gently bob.
+Layout: the whole picture sits in the middle of the vertical frame and is never covered. The band
+above it holds the logo and the map card (or the title), and the band below holds the spoken line
+as a burned-in caption. Camera moves are kept gentle (at most 8% zoom), so the animal stays whole.
+Use the host sticker only when she speaks to the viewer. Animated GIF stickers keep playing their
+frames.
 
 ## Voices
 

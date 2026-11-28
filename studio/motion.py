@@ -107,7 +107,7 @@ def _fit_aspect(box, aspect, w):
 
 def map_card(t_sec: float, spec: dict, size: tuple[int, int], duration: float) -> Image.Image:
     cw, ch = size
-    band = int(ch * 0.2)
+    band = int(ch * 0.24)
     mh = ch - band
     world = world_map()
     W = world.width
@@ -153,7 +153,7 @@ def map_card(t_sec: float, spec: dict, size: tuple[int, int], duration: float) -
     out = Image.new("RGBA", (cw, ch), (255, 255, 255, 255))
     out.paste(card, (0, 0))
     od = ImageDraw.Draw(out)
-    font = _font(int(band * 0.42))
+    font = _font(int(band * 0.55))
     label = spec.get("label", "")
     tw = od.textlength(label, font=font)
     od.text(((cw - tw) / 2, mh + band * 0.24), label, font=font, fill=INK)
@@ -201,21 +201,72 @@ def _with_shadow(st: Image.Image) -> Image.Image:
 
 
 # ---------- render one shot ----------
+def _caption_layer(text: str, width: int, size: int) -> Image.Image:
+    """Bold white caption with a purple outline, wrapped to `width`."""
+    font = _font(size)
+    probe = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
+    lines, line = [], ""
+    for word in text.split():
+        test = f"{line} {word}".strip()
+        if probe.textlength(test, font=font) > width and line:
+            lines.append(line)
+            line = word
+        else:
+            line = test
+    lines.append(line)
+    lh = int(size * 1.18)
+    img = Image.new("RGBA", (width, lh * len(lines) + size // 3), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    for i, ln in enumerate(lines):
+        tw = d.textlength(ln, font=font)
+        d.text(((width - tw) / 2, i * lh), ln, font=font, fill="white",
+               stroke_width=max(3, size // 8), stroke_fill=INK)
+    return img
+
+
+def _scaled(layer: Image.Image, p: float) -> Image.Image:
+    return layer.resize((max(1, int(layer.width * p)), max(1, int(layer.height * p))),
+                        Image.BILINEAR)
+
+
 def render_shot(bg_path: Path, out_path: Path, *, size: tuple[int, int], fps: int,
                 duration: float, sticker: Path | None = None, side: str = "left",
-                scale: float = 0.62, crop=None, logo: Path | None = None,
+                scale: float = 0.36, crop=None, logo: Path | None = None,
                 logo_scale: float = 0.2, title: str | None = None,
-                camera: dict | None = None, map_spec: dict | None = None) -> Path:
+                camera: dict | None = None, map_spec: dict | None = None,
+                caption: str | None = None, still_path: Path | None = None) -> Path:
+    """Vertical layout: the whole square picture sits in the middle (never cropped hard,
+    never covered); the band above holds the logo + map card or title, the band below
+    holds the caption and, when she speaks to camera, the host."""
     W, H = size
     camera = camera or {}
     move = camera.get("move", "push_in")
-    amount = float(camera.get("amount", 0.12))
+    amount = min(float(camera.get("amount", 0.05)), 0.08)   # gentle: keep the animal whole
     focus_x = float(camera.get("focus_x", 0.5))
     dim = float(camera.get("dim", 0.0))
 
-    bg = Image.open(bg_path).convert("RGB")
-    big = int(max(W, H) * 1.35)                       # headroom for zooms
-    bg = bg.resize((big, round(bg.height * big / bg.width)), Image.LANCZOS)
+    P = W                                   # picture panel: full width, square
+    top = int((H - P) * 0.47)               # band above the picture
+    bottom_y = top + P                      # band below starts here
+
+    src = Image.open(bg_path).convert("RGB")
+    head = int(P * (1 + amount) + 2)
+    panel_src = src.resize((head, round(src.height * head / src.width)), Image.LANCZOS)
+
+    # bands: blurred, darkened copy of the same picture
+    cover = max(W / src.width, H / src.height)
+    bands = src.resize((int(src.width * cover) + 1, int(src.height * cover) + 1), Image.LANCZOS)
+    bands = bands.crop(((bands.width - W) // 2, (bands.height - H) // 2,
+                        (bands.width - W) // 2 + W, (bands.height - H) // 2 + H))
+    bands = ImageEnhance.Brightness(bands.filter(ImageFilter.GaussianBlur(40))).enhance(0.55)
+    bands = bands.convert("RGBA")
+    edge = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ed = ImageDraw.Draw(edge)
+    for k in range(18):                     # soft shadow above and below the picture
+        a = int(70 * (1 - k / 18))
+        ed.line((0, top - k, W, top - k), fill=(20, 8, 35, a))
+        ed.line((0, bottom_y + k, W, bottom_y + k), fill=(20, 8, 35, a))
+    bands.alpha_composite(edge)
 
     frames, durs = [], []
     if sticker:
@@ -223,14 +274,20 @@ def render_shot(bg_path: Path, out_path: Path, *, size: tuple[int, int], fps: in
         sw = int(W * scale)
         frames = [_with_shadow(f.resize((sw, round(f.height * sw / f.width)), Image.LANCZOS))
                   for f in raw]
-    logo_img = _round_logo(logo, int(W * logo_scale)) if logo else None
-    title_layer = None
-    if title:
-        title_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        _title(title_layer, title)
-        title_layer = title_layer.crop(title_layer.split()[3].getbbox() or (0, 0, W, H))
-        title_pos = ((W - title_layer.width) // 2, int(H * 0.16))
-    card_size = (int(W * 0.5), int(W * 0.5 * 0.78))
+    m = int(W * 0.03)
+    logo_size = min(int(W * logo_scale), top - 2 * m)
+    logo_img = _round_logo(logo, logo_size) if logo else None
+    right_x = m * 2 + logo_size if logo_img else m        # area right of the logo
+    right_w = W - right_x - m
+
+    title_layer = _caption_layer(title, right_w, int(top * 0.24)) if title else None
+    card_size = (right_w, top - 2 * m)
+
+    host_w = frames[0].width - 80 if frames else 0
+    cap_x = (m + host_w) if frames and side == "left" else m
+    cap_w = W - cap_x - m - (host_w if frames and side == "right" else 0)
+    band_h = H - bottom_y
+    caption_layer = _caption_layer(caption, cap_w, int(band_h * 0.17)) if caption else None
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     n = int(round(duration * fps))
@@ -243,51 +300,53 @@ def render_shot(bg_path: Path, out_path: Path, *, size: tuple[int, int], fps: in
     for i in range(n):
         ts = i / fps
         t = i / max(n - 1, 1)
-        box = camera_box(t, move, amount, focus_x, bg.size, (W, H))
-        frame = bg.transform((W, H), Image.EXTENT, box, Image.BILINEAR)
+        frame = bands.copy()
+        box = camera_box(t, move, amount, focus_x, panel_src.size, (P, P))
+        frame.paste(panel_src.transform((P, P), Image.EXTENT, box, Image.BILINEAR), (0, top))
         if dim:
             frame = ImageEnhance.Brightness(frame).enhance(1 - dim * ease(t))
-        frame = frame.convert("RGBA")
+
+        if logo_img:
+            frame.alpha_composite(logo_img, (m, (top - logo_size) // 2))
+
+        if map_spec:
+            slide = ease_out_back((ts - 0.3) / 0.5)
+            if slide > 0:
+                card = map_card(ts, map_spec, card_size, duration)
+                mx = int(right_x + (1 - slide) * (W - right_x + m))
+                frame.alpha_composite(_with_shadow(card), (mx - 40, m - 40))
+
+        if title_layer is not None:
+            p = ease_out_back((ts - 0.15) / 0.5)
+            if p > 0:
+                tl = _scaled(title_layer, p)
+                frame.alpha_composite(tl, (right_x + (right_w - tl.width) // 2,
+                                           (top - tl.height) // 2))
+
+        if caption_layer is not None:
+            p = ease_out_back((ts - 0.15) / 0.35)
+            if p > 0:
+                cl = _scaled(caption_layer, min(p, 1.08))
+                frame.alpha_composite(cl, (cap_x + (cap_w - cl.width) // 2,
+                                           bottom_y + (band_h - cl.height) // 2))
 
         if frames:
-            # pick GIF frame by time
             k, acc = 0, ts % total_gif
             while k < len(durs) - 1 and acc >= durs[k]:
                 acc -= durs[k]
                 k += 1
             st = frames[k]
             pop = ease_out_back(ts / 0.45)
-            s = max(0.05, 0.6 + 0.4 * pop) * (1 + 0.012 * math.sin(ts * 2.6))
-            stw, sth = max(1, int(st.width * s)), max(1, int(st.height * s))
-            st_s = st.resize((stw, sth), Image.BILINEAR) if s != 1 else st
-            margin = int(W * 0.03) - 40
-            base_x = {"left": margin, "right": W - st.width - margin}.get(side, (W - st.width) // 2)
-            base_y = H - st.height - int(H * 0.06) + 40
-            bob = math.sin(ts * 2.6) * H * 0.004
-            x = base_x + (st.width - stw) // 2
-            y = int(base_y + (st.height - sth) + bob)
+            s = max(0.05, 0.6 + 0.4 * pop) * (1 + 0.01 * math.sin(ts * 2.6))
+            st_s = _scaled(st, s)
+            base_x = m - 40 if side == "left" else W - st.width - m + 40
+            x = base_x + (st.width - st_s.width) // 2
+            y = int(H - st_s.height + 40 - m + math.sin(ts * 2.6) * H * 0.003)
             frame.alpha_composite(st_s, (x, max(y, 0)))
 
-        if map_spec:
-            slide = ease_out_back((ts - 0.5) / 0.5)
-            if slide > 0:
-                card = map_card(ts, map_spec, card_size, duration)
-                mx = int(W - card.width - W * 0.04 + (1 - slide) * (card.width + W * 0.06))
-                my = int(H * 0.035)
-                frame.alpha_composite(_with_shadow(card), (mx - 40, my - 40))
-
-        if logo_img:
-            m = int(W * 0.035)
-            frame.alpha_composite(logo_img, (m, m))
-
-        if title_layer is not None:
-            p = ease_out_back((ts - 0.2) / 0.5)
-            if p > 0:
-                tl = title_layer.resize((max(1, int(title_layer.width * p)),
-                                         max(1, int(title_layer.height * p))), Image.BILINEAR)
-                frame.alpha_composite(tl, (title_pos[0] + (title_layer.width - tl.width) // 2,
-                                           title_pos[1] + (title_layer.height - tl.height) // 2))
-
+        if still_path is not None and i == int(n * 0.7):
+            still_path.parent.mkdir(parents=True, exist_ok=True)
+            frame.convert("RGB").save(still_path)
         proc.stdin.write(frame.convert("RGB").tobytes())
     proc.stdin.close()
     if proc.wait():

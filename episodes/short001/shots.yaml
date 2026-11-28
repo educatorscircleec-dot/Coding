@@ -1,4 +1,5 @@
 # 45 s vertical short. Host = your EduCrew character (brand/stickers/).
+# Host appears only when she talks to the viewer (s010 opening, s100 sign-off).
 # Scene images: AI background (output/short001/backgrounds/<id>.jpg) + sticker + logo,
 # built with `python -m studio compose short001`.
 # camera: how the virtual camera moves; map: where the animal lives (lat, lon pins)
@@ -19,13 +20,12 @@ shots:
   - character: host
     line: Wait... do ANIMALS get sleepy too?
   duration: 4
-  sticker: big_ideas
-  sticker_side: left
-  focus_x: 0.4
   title: HOW DO ANIMALS SLEEP?
   camera:
     move: push_in
-    amount: 0.12
+    amount: 0.05
+  sticker: pose_thinking
+  sticker_side: left
 - id: s020
   location: bedroom
   characters:
@@ -37,11 +37,9 @@ shots:
   - character: host
     line: Lantern, show me!
   duration: 4
-  sticker: lets_learn
-  sticker_side: center
   camera:
     move: push_in
-    amount: 0.22
+    amount: 0.08
 - id: s030
   location: lantern_dream
   characters:
@@ -53,13 +51,9 @@ shots:
   - character: host
     line: Flamingos often sleep standing on ONE leg!
   duration: 5
-  sticker: pose_front
-  sticker_side: left
-  sticker_scale: 0.36
-  focus_x: 0.15
   camera:
-    move: tilt_down
-    amount: 0.25
+    move: push_in
+    amount: 0.04
   map:
     label: Warm lakes & lagoons
     pins:
@@ -82,12 +76,9 @@ shots:
   - character: host
     line: Bats sleep upside down, hanging by their feet!
   duration: 4
-  sticker: pose_side
-  sticker_side: left
-  sticker_scale: 0.36
   camera:
-    move: tilt_up
-    amount: 0.25
+    move: pan_right
+    amount: 0.05
   map:
     label: Almost everywhere!
     pins:
@@ -119,13 +110,9 @@ shots:
   - character: host
     line: Dolphins rest one half of their brain at a time. The other half keeps watch!
   duration: 5
-  sticker: pose_thinking
-  sticker_side: left
-  sticker_scale: 0.4
-  focus_x: 0.55
   camera:
     move: pan_right
-    amount: 0.2
+    amount: 0.06
   map:
     label: Oceans all over the world
     pins:
@@ -152,12 +139,9 @@ shots:
   - character: host
     line: Sea otters hold paws so they don't drift apart!
   duration: 5
-  sticker: teamwork
-  sticker_side: center
-  focus_x: 0.45
   camera:
     move: pull_out
-    amount: 0.3
+    amount: 0.06
   map:
     label: North Pacific coasts
     pins:
@@ -186,13 +170,9 @@ shots:
   - character: host
     line: And giraffes? They take short little naps.
   duration: 5
-  sticker: pose_back
-  sticker_side: left
-  sticker_scale: 0.4
-  focus_x: 0.6
   camera:
-    move: pan_right
-    amount: 0.18
+    move: pan_left
+    amount: 0.05
   map:
     label: African savannas
     pins:
@@ -220,23 +200,14 @@ shots:
   - character: host
     line: Okay... now I'M sleepy.
   duration: 4
-  sticker: on_track
-  sticker_side: right
-  sticker_crop:
-  - 0
-  - 0
-  - 1
-  - 0.8
-  focus_x: 0.3
   camera:
     move: push_in
-    amount: 0.1
+    amount: 0.05
     dim: 0.35
 - id: s090
   location: bedroom
   characters:
   - mrs_alder
-  - host
   framing: medium two-shot, vertical frame
   action: Mrs. Alder in a nightcap peeking through the doorway with a candle, the host dozing happily
     hugging a heart
@@ -245,13 +216,9 @@ shots:
   - character: mrs_alder
     line: Badgers sleep in cozy tunnels, dear. And little learners sleep... now.
   duration: 5
-  sticker: keep_growing
-  sticker_side: left
-  sticker_scale: 0.55
-  focus_x: 0.8
   camera:
     move: push_in
-    amount: 0.15
+    amount: 0.05
   map:
     label: Woods of Europe
     pins:
@@ -279,10 +246,9 @@ shots:
   - character: host
     line: Which animal sleeps like YOU? Tell me...
   duration: 4
-  sticker: youve_got_this
-  sticker_side: center
-  logo_scale: 0.3
   camera:
     move: pull_out
-    amount: 0.2
+    amount: 0.06
+  sticker: pose_front
+  sticker_side: left
 fps: 24

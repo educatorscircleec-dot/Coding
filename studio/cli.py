@@ -243,8 +243,10 @@ def cmd_motion(project: Project, args) -> int:
             duration=s.duration,
             sticker=project.root / "brand" / "stickers" / f"{x['sticker']}.png"
             if x.get("sticker") else None,
-            side=x.get("sticker_side", "left"), scale=float(x.get("sticker_scale", 0.62)),
+            side=x.get("sticker_side", "left"), scale=float(x.get("sticker_scale", 0.36)),
             crop=x.get("sticker_crop"), logo=logo,
+            caption=" ".join(d["line"] for d in s.dialogue) if x.get("captions", True) else None,
+            still_path=base / "scenes" / f"{s.id}.png",
             logo_scale=float(x.get("logo_scale", brand.get("logo_scale", 0.2))),
             title=x.get("title"),
             camera={"focus_x": x.get("focus_x", 0.5), **(x.get("camera") or {})},
