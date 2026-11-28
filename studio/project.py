@@ -85,6 +85,10 @@ class Project:
         w, h = self.episode(ep_id).resolution or self.style.get("resolution", [832, 480])
         return int(w), int(h)
 
+    def fps(self, ep_id: str) -> int:
+        data = _load_yaml(self.root / "episodes" / ep_id / "shots.yaml")
+        return int(data.get("fps") or self.style.get("fps", 16))
+
     def validate(self, ep_id: str) -> list[str]:
         """Return a list of problems (empty list means the episode is valid)."""
         errors: list[str] = []

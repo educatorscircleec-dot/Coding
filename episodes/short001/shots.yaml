@@ -1,11 +1,12 @@
 # 45 s vertical short. Host = your EduCrew character (brand/stickers/).
 # Scene images: AI background (output/short001/backgrounds/<id>.jpg) + sticker + logo,
 # built with `python -m studio compose short001`.
+# camera: how the virtual camera moves; map: where the animal lives (lat, lon pins)
 episode: short001
 title: How Do Animals Sleep?
 resolution:
-- 480
-- 832
+- 1080
+- 1920
 shots:
 - id: s010
   location: bedroom
@@ -22,6 +23,9 @@ shots:
   sticker_side: left
   focus_x: 0.4
   title: HOW DO ANIMALS SLEEP?
+  camera:
+    move: push_in
+    amount: 0.12
 - id: s020
   location: bedroom
   characters:
@@ -35,6 +39,9 @@ shots:
   duration: 4
   sticker: lets_learn
   sticker_side: center
+  camera:
+    move: push_in
+    amount: 0.22
 - id: s030
   location: lantern_dream
   characters:
@@ -50,6 +57,20 @@ shots:
   sticker_side: left
   sticker_scale: 0.36
   focus_x: 0.15
+  camera:
+    move: tilt_down
+    amount: 0.25
+  map:
+    label: Warm lakes & lagoons
+    pins:
+    - - -0.4
+      - 36.1
+    - - 21.1
+      - -73.3
+    - - 43.5
+      - 4.5
+    - - 23.7
+      - 69.8
 - id: s040
   location: lantern_dream
   characters:
@@ -64,12 +85,35 @@ shots:
   sticker: pose_side
   sticker_side: left
   sticker_scale: 0.36
+  camera:
+    move: tilt_up
+    amount: 0.25
+  map:
+    label: Almost everywhere!
+    pins:
+    - - 40
+      - -100
+    - - -10
+      - -55
+    - - 50
+      - 10
+    - - 5
+      - 22
+    - - 25
+      - 80
+    - - -25
+      - 135
+    - - 33
+      - 108
+    - - 55
+      - 40
 - id: s050
   location: lantern_dream
   characters:
   - host
   framing: underwater medium shot, vertical frame
-  action: a dolphin resting near the surface with one eye closed and one eye open, the host watching from the shore
+  action: a dolphin resting near the surface with one eye closed and one eye open, the host watching from
+    the shore
   motion: dolphin drifts slowly, one eye blinks open, bubbles rise
   dialogue:
   - character: host
@@ -79,6 +123,24 @@ shots:
   sticker_side: left
   sticker_scale: 0.4
   focus_x: 0.55
+  camera:
+    move: pan_right
+    amount: 0.2
+  map:
+    label: Oceans all over the world
+    pins:
+    - - 25
+      - -45
+    - - -25
+      - -25
+    - - -15
+      - 75
+    - - 10
+      - -150
+    - - -35
+      - 165
+    - - 36
+      - 18
 - id: s060
   location: lantern_dream
   characters:
@@ -93,6 +155,25 @@ shots:
   sticker: teamwork
   sticker_side: center
   focus_x: 0.45
+  camera:
+    move: pull_out
+    amount: 0.3
+  map:
+    label: North Pacific coasts
+    pins:
+    - - 36.6
+      - -121.9
+    - - 60.5
+      - -147
+    - - 55.5
+      - -160
+    - - 48.5
+      - -125
+    region:
+    - -175
+    - -105
+    - 28
+    - 66
 - id: s070
   location: lantern_dream
   characters:
@@ -109,6 +190,25 @@ shots:
   sticker_side: left
   sticker_scale: 0.4
   focus_x: 0.6
+  camera:
+    move: pan_right
+    amount: 0.18
+  map:
+    label: African savannas
+    pins:
+    - - -1.5
+      - 35.1
+    - - -18.9
+      - 16.0
+    - - 13.5
+      - 2.6
+    - - -24
+      - 31.5
+    region:
+    - -20
+    - 55
+    - -36
+    - 30
 - id: s080
   location: bedroom
   characters:
@@ -128,13 +228,18 @@ shots:
   - 1
   - 0.8
   focus_x: 0.3
+  camera:
+    move: push_in
+    amount: 0.1
+    dim: 0.35
 - id: s090
   location: bedroom
   characters:
   - mrs_alder
   - host
   framing: medium two-shot, vertical frame
-  action: Mrs. Alder in a nightcap peeking through the doorway with a candle, the host dozing happily hugging a heart
+  action: Mrs. Alder in a nightcap peeking through the doorway with a candle, the host dozing happily
+    hugging a heart
   motion: Mrs. Alder leans in through the door, candle flame flickers
   dialogue:
   - character: mrs_alder
@@ -144,6 +249,25 @@ shots:
   sticker_side: left
   sticker_scale: 0.55
   focus_x: 0.8
+  camera:
+    move: push_in
+    amount: 0.15
+  map:
+    label: Woods of Europe
+    pins:
+    - - 52.5
+      - -1.5
+    - - 47
+      - 2.5
+    - - 51
+      - 10
+    - - 52
+      - 19
+    region:
+    - -12
+    - 40
+    - 36
+    - 62
 - id: s100
   location: bedroom
   characters:
@@ -158,3 +282,7 @@ shots:
   sticker: youve_got_this
   sticker_side: center
   logo_scale: 0.3
+  camera:
+    move: pull_out
+    amount: 0.2
+fps: 24

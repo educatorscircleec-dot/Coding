@@ -56,6 +56,26 @@ python -m studio assemble ep001
 - Each step reads its keyframe or clip from disk, so you can drop in your own image (for example a
   hand-fixed keyframe) at `output/ep001/keyframes/s020.png` and only re-animate that shot.
 
+## Branded scenes and motion (no AI video needed)
+
+For shorts hosted by your own character (see `brand/`):
+
+```bash
+python -m studio compose short001   # AI background + your sticker + logo -> scenes/*.png
+python -m studio motion short001    # camera moves, living stickers, map card -> clips/*.mp4
+python -m studio voice short001
+python -m studio assemble short001
+```
+
+Each shot in `shots.yaml` can set:
+- `camera`: `move` (push_in, pull_out, pan_left, pan_right, tilt_up, tilt_down, still), `amount`,
+  `focus_x`, and `dim` (lights going down during the shot).
+- `map`: a label, `pins` as `[lat, lon]`, and an optional `region` to fly in to. The map card slides
+  in, flies from the whole world down to the region, and drops pins that pulse.
+  The world outlines come from Natural Earth (public domain), stored in `studio/data/world.json`.
+
+Animated GIF stickers keep playing their frames, and still stickers pop in and gently bob.
+
 ## Voices
 
 `python -m studio voice <episode>` reads every shot's dialogue aloud with
