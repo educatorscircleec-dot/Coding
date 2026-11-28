@@ -1,8 +1,53 @@
-# Wan 2.2 image-to-video jobs for short001 (one 5 s clip per scene; the renderer
-# stretches it to the shot). Re-run any time: finished clips are skipped.
+# Wan 2.2 image-to-video jobs for short001.
+# Each animal has one segment per narration line, sized from output/short001/timing.json,
+# so the action happens while the line is spoken. Each segment starts from the previous
+# segment's last frame. Finished clips are skipped, so re-run after the free GPU allowance resets.
 output: output/short001/wan
 parallel: 1
 jobs:
+  bats:
+    image: output/short001/backgrounds/s040.jpg
+    segments:
+    - prompt: the three bats hang upside down asleep from the branch by their feet, gently swaying, wings wrapped
+        tight
+      seconds: 2.41
+    - prompt: the middle bat wakes, opens its wings, lets go of the branch and flies away
+      seconds: 2.29
+    - prompt: the bat flies in a loop across the big moon while the other bats keep swaying on the branch
+      seconds: 3.13
+  giraffe:
+    image: output/short001/backgrounds/s070.jpg
+    segments:
+    - prompt: the giraffe lying down blinks sleepily and slowly lowers its head
+      seconds: 2.81
+    - prompt: the giraffe curls its long neck back and rests its head on its back like a pillow, eyes closing
+      seconds: 2.42
+    - prompt: the giraffe sleeps peacefully with its head on its back, breathing slowly, the acacia tree sways
+      seconds: 3.5
+  dolphin:
+    image: output/short001/backgrounds/s050.jpg
+    segments:
+    - prompt: the dolphin floats resting at the water surface, eyes closed, gently bobbing, bubbles rise
+      seconds: 2.65
+    - prompt: the dolphin keeps one eye open and one eye closed, slowly looking around, still floating
+      seconds: 2.45
+    - prompt: the dolphin slowly swims forward and arches its back, small splash, waves sparkle
+      seconds: 3.27
+  otters:
+    image: output/short001/backgrounds/s060.jpg
+    segments:
+    - prompt: the two sea otters float asleep on their backs holding paws, gently bobbing on the waves
+      seconds: 2.31
+    - prompt: the waves rock the otters but they keep holding paws tightly and stay together, kelp sways
+      seconds: 1.68
+    - prompt: the otters slowly drift and spin together on the calm sea, still holding paws, the sun glows
+      seconds: 2.63
+  outro:
+    image: output/short001/backgrounds/s010.jpg
+    segments:
+    - prompt: cozy bedroom at night, the little lamp glows warmly, curtains sway gently, stars twinkle outside the
+        window, the moon smiles
+      seconds: 4.0
   hook:
     image: output/short001/backgrounds/s100.jpg
     segments:
@@ -16,37 +61,3 @@ jobs:
         and swaying, water ripples around its leg, stars twinkle, then the flamingo slowly lifts its head, blinks,
         looks around and gently fluffs its wings, still standing on one leg, lily pads bob on the water
       seconds: 5.0
-  bats:
-    image: output/short001/backgrounds/s040.jpg
-    segments:
-    - prompt: the three bats hang upside down asleep from the branch, gently swaying, then the middle bat opens
-        its wings, lets go of the branch and flies away, then the bat flies in a loop across the big moon while
-        the other bats sway gently on the branch, grass moves in the breeze
-      seconds: 5.0
-  dolphin:
-    image: output/short001/backgrounds/s050.jpg
-    segments:
-    - prompt: the dolphin rests floating at the water surface with one eye open and one eye closed, gently bobbing
-        up and down, bubbles rise, moonlight shimmers, then the dolphin slowly swims forward and gently arches its
-        back, small splash, waves sparkle in the moonlight
-      seconds: 5.0
-  otters:
-    image: output/short001/backgrounds/s060.jpg
-    segments:
-    - prompt: the two sea otters float asleep on their backs holding paws, gently bobbing on the waves together,
-        kelp sways, then the two otters keep holding paws and slowly drift and spin together on the calm waves,
-        the sun glows on the water
-      seconds: 5.0
-  giraffe:
-    image: output/short001/backgrounds/s070.jpg
-    segments:
-    - prompt: the giraffe sleeps lying down with its head resting on its back like a pillow, breathing slowly, the
-        acacia tree sways, stars twinkle, then the giraffe wakes up, slowly lifts its long neck high, blinks and
-        looks around the savanna
-      seconds: 5.0
-  outro:
-    image: output/short001/backgrounds/s010.jpg
-    segments:
-    - prompt: cozy bedroom at night, the little lamp glows warmly, curtains sway gently, stars twinkle outside the
-        window, the moon smiles
-      seconds: 4.0

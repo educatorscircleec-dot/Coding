@@ -25,6 +25,8 @@ def last_frame(video: Path, out: Path) -> Path:
 
 
 def run_job(name, job, outdir):
+    if (outdir / f"{name}.mp4").exists():
+        return f"{name} (already done)"
     client = Client(SPACE, verbose=False)
     image = Path(job["image"])
     parts = []
@@ -40,8 +42,10 @@ def run_job(name, job, outdir):
                         randomize_seed=False, api_name="/generate_video")
                     shutil.copy(v["video"] if isinstance(v, dict) else v, out)
                     break
-                except Exception as e:  # queue hiccups: retry
+                except Exception as e:  # queue hiccups: retry; quota: stop
                     print(f"{name}_{i} attempt {attempt + 1} failed: {e}", flush=True)
+                    if "quota" in str(e).lower():
+                        raise RuntimeError("free GPU quota used up; re-run after it resets")
             else:
                 raise RuntimeError(f"{name}_{i} failed")
         print(f"done {out.name}", flush=True)
