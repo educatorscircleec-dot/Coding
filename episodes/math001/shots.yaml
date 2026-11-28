@@ -1,0 +1,60 @@
+# MATH HACKS 001 — The Percent Flip (45 s, vertical, ages 12+ to adult learners)
+# Voice: Kokoro (free), one audio file per line in output/math001/lines/<id>.wav
+# Render: python -m studio mathshort math001
+# Board markup: {y:..} yellow  {p:..} pink  {g:..} green  {b:..} blue
+episode: math001
+title: The Percent Flip
+series_title: MATH HACKS
+resolution: [1080, 1920]
+fps: 24
+target_seconds: 45
+music_level: 0.35
+voice: { engine: kokoro, voice: af_heart, speed: 1.05 }
+
+shots:
+  - id: hook
+    sticker: math_magic
+    lines:
+      - id: L01
+        line: "What's eight percent of twenty-five? Quick, no calculator!"
+        board: ["{y:8%} of {p:25} = {b:?}"]
+      - id: L02
+        line: "Here's a secret most people never learn. Percentages can flip."
+        board: ["{y:8%} of {p:25}", "{g:FLIP IT!}"]
+
+  - id: trick
+    lines:
+      - id: L03
+        line: "Eight percent of twenty-five is the same as twenty-five percent of eight."
+        swap: { template: "{a}% of {b}", a: "8", b: "25" }
+      - id: L04
+        line: "And twenty-five percent is just a quarter. A quarter of eight is two!"
+        board: ["{p:25%} of {y:8}", "= ¼ of {y:8}", "= {g:2}"]
+
+  - id: why
+    lines:
+      - id: L05
+        line: "Why does it work? Percent simply means out of a hundred."
+        board: ["{b:percent} = out of {b:100}"]
+      - id: L06
+        line: "So both are eight times twenty-five, divided by a hundred. Same answer!"
+        board: ["{y:8} × {p:25} ÷ 100", "= {p:25} × {y:8} ÷ 100", "= {g:2}"]
+
+  - id: more
+    lines:
+      - id: L07
+        line: "Try four percent of seventy-five. Flip it to seventy-five percent of four. That's three!"
+        board: ["{y:4%} of {p:75}", "→ {p:75%} of {y:4}", "= {g:3}"]
+      - id: L08
+        line: "Leaving a twelve percent tip on fifty? Flip it. Half of twelve is six."
+        board: ["{y:12%} of {p:50}", "→ {p:50%} of {y:12}", "= {g:6}"]
+      - id: L08b
+        line: "Pro tip: flip it whenever one number is a friendly percent, like ten, twenty-five or fifty."
+        board: ["{g:Friendly percents}", "{b:10%} = ÷ 10", "{b:25%} = ÷ 4", "{b:50%} = ÷ 2"]
+
+  - id: outro
+    sticker: youve_got_this
+    lines:
+      - id: L09
+        line: "Your turn. What's eighteen percent of fifty? Drop your answer in the comments!"
+        board: ["{y:18%} of {p:50} = {b:?}"]

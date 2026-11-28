@@ -303,6 +303,31 @@ def cmd_livemotion(project: Project, args) -> int:
     return 0
 
 
+def cmd_mathshort(project: Project, args) -> int:
+    """Math Hacks short: free Kokoro voice for each line, then the animated board render."""
+    from . import mathshort, voice
+    from .project import _load_yaml
+
+    _require_valid(project, args.episode)
+    spec = _load_yaml(project.root / "episodes" / args.episode / "shots.yaml")
+    vs = spec.get("voice", {})
+    lines_dir = _ep_out(project, args.episode) / "lines"
+    tts = None
+    for s in spec["shots"]:
+        for l in s["lines"]:
+            wav = lines_dir / f"{l['id']}.wav"
+            if wav.exists() and not args.revoice:
+                continue
+            if tts is None:
+                tts = voice.KokoroVoice(project.root / "models" / "kokoro")
+            audio = tts.speak(l["line"], vs.get("voice", "af_heart"), float(vs.get("speed", 1.0)))
+            voice.write_wav(audio, wav)
+            print(f"voiced {l['id']}")
+    out = mathshort.render_mathshort(project, args.episode, spec)
+    print(f"wrote {out.relative_to(project.root)}")
+    return 0
+
+
 def cmd_render(project: Project, args) -> int:
     args.provider = None
     for step in (cmd_keyframes, cmd_animate, cmd_assemble):
@@ -361,6 +386,11 @@ def main(argv: list[str] | None = None) -> int:
     lm.add_argument("episode")
     lm.add_argument("--only", nargs="+")
     lm.set_defaults(fn=cmd_livemotion)
+
+    ms = sub.add_parser("mathshort", help="Math Hacks short (free voice + animated board)")
+    ms.add_argument("episode")
+    ms.add_argument("--revoice", action="store_true", help="re-record every line")
+    ms.set_defaults(fn=cmd_mathshort)
 
     sh = sub.add_parser("short", help="one-pass synced render of a narrated short")
     sh.add_argument("episode")

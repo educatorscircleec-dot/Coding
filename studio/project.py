@@ -110,6 +110,8 @@ class Project:
                 if c not in self.characters:
                     errors.append(f"{where}: unknown character '{c}'")
             for line in s.dialogue:
+                if "character" not in line:   # narrated lines (e.g. Math Hacks) have no speaker
+                    continue
                 speaker = line.get("character")
                 if speaker not in self.characters:
                     errors.append(f"{where}: dialogue from unknown character '{speaker}'")
