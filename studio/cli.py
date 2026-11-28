@@ -270,6 +270,30 @@ def cmd_short(project: Project, args) -> int:
     return 0
 
 
+def cmd_livemotion(project: Project, args) -> int:
+    """Free CPU animation for scenes without an AI clip, one clip per narration line."""
+    import json
+    from . import livemotion
+    from .project import _load_yaml
+
+    spec = _load_yaml(project.root / "episodes" / args.episode / "motion.yaml")
+    timing = {s["shot"]: s for s in json.loads(
+        (_ep_out(project, args.episode) / "timing.json").read_text())}
+    shots = {s.id: s for s in project.episode(args.episode).shots}
+    for name, sc in spec["scenes"].items():
+        if args.only and name not in args.only:
+            continue
+        shot_id = next(k for k, v in shots.items() if v.extra.get("clip") == name)
+        tm = timing[shot_id]
+        b = [0.0] + [l["start"] - tm["start"] for l in tm["lines"][1:]] + [tm["end"] - tm["start"]]
+        windows = list(zip(b[:-1], b[1:]))
+        outs = livemotion.render_segments(project.root / sc["image"], sc["recipe"], windows,
+                                          project.root / spec["output"] / name,
+                                          fps=project.fps(args.episode))
+        print(f"[{name}] " + ", ".join(o.name for o in outs))
+    return 0
+
+
 def cmd_render(project: Project, args) -> int:
     args.provider = None
     for step in (cmd_keyframes, cmd_animate, cmd_assemble):
@@ -323,6 +347,11 @@ def main(argv: list[str] | None = None) -> int:
         if has_provider:
             sp.add_argument("--provider", help="override provider from style.yaml")
         sp.set_defaults(fn=fn)
+
+    lm = sub.add_parser("livemotion", help="free CPU animation for scenes without AI clips")
+    lm.add_argument("episode")
+    lm.add_argument("--only", nargs="+")
+    lm.set_defaults(fn=cmd_livemotion)
 
     sh = sub.add_parser("short", help="one-pass synced render of a narrated short")
     sh.add_argument("episode")

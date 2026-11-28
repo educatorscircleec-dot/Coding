@@ -248,9 +248,16 @@ def render_short(project, ep_id: str, spec: dict) -> Path:
     for s in shots:
         clip = clips_dir / f"{s.spec['clip']}.mp4"
         # per-line segments (<clip>_0.mp4, <clip>_1.mp4 ...): segment i plays during line i
-        seg_paths = [clips_dir / f"{s.spec['clip']}_{i}.mp4" for i in range(len(s.lines))]
+        # prefer AI (Wan) segments, then free live-motion segments
+        alt = base / spec["alt_clips_dir"] if spec.get("alt_clips_dir") else None
+        def _seg(i):
+            for d in (clips_dir, alt):
+                if d is not None and (d / f"{s.spec['clip']}_{i}.mp4").exists():
+                    return d / f"{s.spec['clip']}_{i}.mp4"
+            return clips_dir / f"{s.spec['clip']}_{i}.mp4"
+        seg_paths = [_seg(i) for i in range(len(s.lines))]
         s.segments = None
-        if len(s.lines) > 1 and seg_paths[0].exists():
+        if len(s.lines) > 1 and seg_paths[0].exists() and not clip.exists():
             s.segments = []
             for i, sp in enumerate(seg_paths):
                 if sp.exists():
