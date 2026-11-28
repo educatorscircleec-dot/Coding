@@ -13,7 +13,8 @@ jobs:
       seconds: 2.41
     - prompt: the middle bat wakes, opens its wings, lets go of the branch and flies away
       seconds: 2.29
-    - prompt: the bat flies in a loop across the big moon while the other bats keep swaying on the branch
+    - prompt: the bats flutter back into the starry sky and fly in a happy loop across the big full moon, wings
+        flapping
       seconds: 3.13
   giraffe:
     image: output/short001/backgrounds/s070.jpg

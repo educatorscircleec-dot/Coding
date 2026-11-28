@@ -247,10 +247,26 @@ def render_short(project, ep_id: str, spec: dict) -> Path:
     # per-shot assets
     for s in shots:
         clip = clips_dir / f"{s.spec['clip']}.mp4"
-        if not clip.exists() and spec.get("fallback_clips_dir"):
-            clip = base / spec["fallback_clips_dir"] / f"{s.spec['clip']}.mp4"
-            print(f"[{s.id}] animated clip not ready yet, using {clip.relative_to(root)}")
-        s.frames, s.clip_fps = load_clip(clip, P)
+        # per-line segments (<clip>_0.mp4, <clip>_1.mp4 ...): segment i plays during line i
+        seg_paths = [clips_dir / f"{s.spec['clip']}_{i}.mp4" for i in range(len(s.lines))]
+        s.segments = None
+        if len(s.lines) > 1 and seg_paths[0].exists():
+            s.segments = []
+            for i, sp in enumerate(seg_paths):
+                if sp.exists():
+                    s.segments.append(load_clip(sp, P)[0])
+                else:   # not made yet: hold the previous segment's last frame
+                    s.segments.append([s.segments[-1][-1]])
+                    print(f"[{s.id}] line {i + 1}: animation not ready yet, holding last frame")
+            # window of each line inside the shot: from its start to the next line's start
+            bounds = [0.0] + [l.start - s.start for l in s.lines[1:]] + [s.end - s.start]
+            s.windows = list(zip(bounds[:-1], bounds[1:]))
+            s.frames = s.segments[0]
+        else:
+            if not clip.exists() and spec.get("fallback_clips_dir"):
+                clip = base / spec["fallback_clips_dir"] / f"{s.spec['clip']}.mp4"
+                print(f"[{s.id}] animated clip not ready yet, using {clip.relative_to(root)}")
+            s.frames, s.clip_fps = load_clip(clip, P)
         s.band = band_background(s.frames[0], W, H).convert("RGBA")
         s.sticker = []
         if s.spec.get("sticker"):
@@ -284,9 +300,17 @@ def render_short(project, ep_id: str, spec: dict) -> Path:
         dur = s.end - s.start
         frame = s.band.copy()
 
-        # animated picture, time-stretched to the shot length
-        k = min(len(s.frames) - 1, int(lt / dur * len(s.frames)))
-        frame.paste(s.frames[k], (0, top))
+        # animated picture: per-line segment stretched to its line's window,
+        # or one clip stretched to the whole shot
+        if s.segments:
+            wi = next((i for i, (a, b) in enumerate(s.windows) if lt < b), len(s.windows) - 1)
+            a, b = s.windows[wi]
+            seg = s.segments[wi]
+            k = min(len(seg) - 1, int((lt - a) / max(b - a, 1e-3) * len(seg)))
+            frame.paste(seg[k], (0, top))
+        else:
+            k = min(len(s.frames) - 1, int(lt / dur * len(s.frames)))
+            frame.paste(s.frames[k], (0, top))
 
         if logo:
             frame.alpha_composite(logo, (m, (top - logo_size) // 2))
