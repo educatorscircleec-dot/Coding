@@ -105,7 +105,8 @@ def _fit_aspect(box, aspect, w):
     return (x0, y0, x1, y1)
 
 
-def map_card(t_sec: float, spec: dict, size: tuple[int, int], duration: float) -> Image.Image:
+def map_card(t_sec: float, spec: dict, size: tuple[int, int], duration: float,
+             fly_start: float = 0.9, pin_start: float = 2.0) -> Image.Image:
     cw, ch = size
     band = int(ch * 0.24)
     mh = ch - band
@@ -122,7 +123,7 @@ def map_card(t_sec: float, spec: dict, size: tuple[int, int], duration: float) -
         target = _fit_aspect((full[0] + W * 0.04, full[1] + W * 0.02,
                               full[2] - W * 0.04, full[3] - W * 0.02), aspect, W)
     # fly from the whole world to the region between 0.9 s and 2.4 s
-    k = ease((t_sec - 0.9) / 1.5)
+    k = ease((t_sec - fly_start) / 1.5)
     box = tuple(a + (b - a) * k for a, b in zip(full, target))
     card = world.transform((cw, mh), Image.EXTENT, box, Image.BILINEAR,
                            fillcolor=OCEAN).convert("RGBA")
@@ -132,7 +133,7 @@ def map_card(t_sec: float, spec: dict, size: tuple[int, int], duration: float) -
     for i, (lat, lon) in enumerate(spec.get("pins", [])):
         px, py = _lonlat_to_px(lon, lat, W)
         px, py = (px - box[0]) * sx, (py - box[1]) * sy
-        start = 2.0 + i * 0.18                      # pins drop one after another
+        start = pin_start + i * 0.18                # pins drop one after another
         p = (t_sec - start) / 0.45
         if p <= 0:
             continue
@@ -153,10 +154,13 @@ def map_card(t_sec: float, spec: dict, size: tuple[int, int], duration: float) -
     out = Image.new("RGBA", (cw, ch), (255, 255, 255, 255))
     out.paste(card, (0, 0))
     od = ImageDraw.Draw(out)
-    font = _font(int(band * 0.55))
     label = spec.get("label", "")
+    fs = int(band * 0.55)
+    while fs > 14 and od.textlength(label, font=_font(fs)) > cw * 0.92:
+        fs -= 1
+    font = _font(fs)
     tw = od.textlength(label, font=font)
-    od.text(((cw - tw) / 2, mh + band * 0.24), label, font=font, fill=INK)
+    od.text(((cw - tw) / 2, mh + (band - fs) * 0.42), label, font=font, fill=INK)
     od.line((0, mh, cw, mh), fill=INK, width=3)
     mask = Image.new("L", (cw, ch), 0)
     rad = cw // 14

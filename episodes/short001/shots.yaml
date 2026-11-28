@@ -1,254 +1,90 @@
-# 45 s vertical short. Host = your EduCrew character (brand/stickers/).
-# Host appears only when she talks to the viewer (s010 opening, s100 sign-off).
-# Scene images: AI background (output/short001/backgrounds/<id>.jpg) + sticker + logo,
-# built with `python -m studio compose short001`.
-# camera: how the virtual camera moves; map: where the animal lives (lat, lon pins)
+# SHORT001 — How Do Animals Sleep?  (45 s, vertical, narrated by the EduCrew host)
+#
+# Voice drives the timing: each line is its own audio file in output/short001/lines/<id>.mp3
+# (ElevenLabs, voice "Jessica"). `python -m studio short short001` measures every line and
+# builds one synced timeline: shot cuts, captions (word highlight) and map pins all follow the voice.
+# Animated pictures: output/short001/wan/<clip>.mp4, made by scripts/wan_batch.py from
+# episodes/short001/animation.yaml.
 episode: short001
 title: How Do Animals Sleep?
-resolution:
-- 1080
-- 1920
-shots:
-- id: s010
-  location: bedroom
-  characters:
-  - host
-  framing: close-up, vertical frame
-  action: the host with a thoughtful look, an idea lightbulb above her
-  motion: the host taps her chin, then her eyes light up with an idea
-  dialogue:
-  - character: host
-    line: Wait... do ANIMALS get sleepy too?
-  duration: 4
-  title: HOW DO ANIMALS SLEEP?
-  camera:
-    move: push_in
-    amount: 0.05
-  sticker: pose_thinking
-  sticker_side: left
-- id: s020
-  location: bedroom
-  characters:
-  - host
-  framing: medium shot, vertical frame
-  action: the host holding a paper lantern up high as it bursts into golden light
-  motion: lantern flares bright, light swirls outward and fills the frame
-  dialogue:
-  - character: host
-    line: Lantern, show me!
-  duration: 4
-  camera:
-    move: push_in
-    amount: 0.08
-- id: s030
-  location: lantern_dream
-  characters:
-  - host
-  framing: wide shot, vertical frame
-  action: a pink flamingo asleep standing on one leg in a shallow pond, the host watching from the bank
-  motion: flamingo sways gently on one leg, ripples spread across the water
-  dialogue:
-  - character: host
-    line: Flamingos often sleep standing on ONE leg!
-  duration: 5
-  camera:
-    move: push_in
-    amount: 0.04
-  map:
-    label: Warm lakes & lagoons
-    pins:
-    - - -0.4
-      - 36.1
-    - - 21.1
-      - -73.3
-    - - 43.5
-      - 4.5
-    - - 23.7
-      - 69.8
-- id: s040
-  location: lantern_dream
-  characters:
-  - host
-  framing: low angle, vertical frame
-  action: a cluster of small brown bats sleeping upside down from a branch, the host looking up at them
-  motion: bats wrap their wings tighter, the host tilts her head curiously
-  dialogue:
-  - character: host
-    line: Bats sleep upside down, hanging by their feet!
-  duration: 4
-  camera:
-    move: pan_right
-    amount: 0.05
-  map:
-    label: Almost everywhere!
-    pins:
-    - - 40
-      - -100
-    - - -10
-      - -55
-    - - 50
-      - 10
-    - - 5
-      - 22
-    - - 25
-      - 80
-    - - -25
-      - 135
-    - - 33
-      - 108
-    - - 55
-      - 40
-- id: s050
-  location: lantern_dream
-  characters:
-  - host
-  framing: underwater medium shot, vertical frame
-  action: a dolphin resting near the surface with one eye closed and one eye open, the host watching from
-    the shore
-  motion: dolphin drifts slowly, one eye blinks open, bubbles rise
-  dialogue:
-  - character: host
-    line: Dolphins rest one half of their brain at a time. The other half keeps watch!
-  duration: 5
-  camera:
-    move: pan_right
-    amount: 0.06
-  map:
-    label: Oceans all over the world
-    pins:
-    - - 25
-      - -45
-    - - -25
-      - -25
-    - - -15
-      - 75
-    - - 10
-      - -150
-    - - -35
-      - 165
-    - - 36
-      - 18
-- id: s060
-  location: lantern_dream
-  characters:
-  - host
-  framing: top-down shot, vertical frame
-  action: two sea otters floating on their backs holding paws while asleep, the host cheering nearby
-  motion: otters bob gently on the waves, paws stay linked
-  dialogue:
-  - character: host
-    line: Sea otters hold paws so they don't drift apart!
-  duration: 5
-  camera:
-    move: pull_out
-    amount: 0.06
-  map:
-    label: North Pacific coasts
-    pins:
-    - - 36.6
-      - -121.9
-    - - 60.5
-      - -147
-    - - 55.5
-      - -160
-    - - 48.5
-      - -125
-    region:
-    - -175
-    - -105
-    - 28
-    - 66
-- id: s070
-  location: lantern_dream
-  characters:
-  - host
-  framing: tall full shot, vertical frame
-  action: a giraffe taking a quick nap with its neck curled back onto its body, the host looking up in
-    awe
-  motion: giraffe curls its long neck down to rest, then snaps awake
-  dialogue:
-  - character: host
-    line: And giraffes? They take short little naps.
-  duration: 5
-  camera:
-    move: pan_left
-    amount: 0.05
-  map:
-    label: African savannas
-    pins:
-    - - -1.5
-      - 35.1
-    - - -18.9
-      - 16.0
-    - - 13.5
-      - 2.6
-    - - -24
-      - 31.5
-    region:
-    - -20
-    - 55
-    - -36
-    - 30
-- id: s080
-  location: bedroom
-  characters:
-  - host
-  framing: medium shot, vertical frame
-  action: the host at her desk with eyes closed and a mug of cocoa, the lantern dimming
-  motion: lantern light fades softly, the host nods off sleepily
-  dialogue:
-  - character: host
-    line: Okay... now I'M sleepy.
-  duration: 4
-  camera:
-    move: push_in
-    amount: 0.05
-    dim: 0.35
-- id: s090
-  location: bedroom
-  characters:
-  - mrs_alder
-  framing: medium two-shot, vertical frame
-  action: Mrs. Alder in a nightcap peeking through the doorway with a candle, the host dozing happily
-    hugging a heart
-  motion: Mrs. Alder leans in through the door, candle flame flickers
-  dialogue:
-  - character: mrs_alder
-    line: Badgers sleep in cozy tunnels, dear. And little learners sleep... now.
-  duration: 5
-  camera:
-    move: push_in
-    amount: 0.05
-  map:
-    label: Woods of Europe
-    pins:
-    - - 52.5
-      - -1.5
-    - - 47
-      - 2.5
-    - - 51
-      - 10
-    - - 52
-      - 19
-    region:
-    - -12
-    - 40
-    - 36
-    - 62
-- id: s100
-  location: bedroom
-  characters:
-  - host
-  framing: close-up, vertical frame
-  action: the host winking with a thumbs up, sleeping cartoon animals on clouds behind her
-  motion: the host winks, stars twinkle, clouds drift slowly
-  dialogue:
-  - character: host
-    line: Which animal sleeps like YOU? Tell me...
-  duration: 4
-  camera:
-    move: pull_out
-    amount: 0.06
-  sticker: pose_front
-  sticker_side: left
+resolution: [1080, 1920]
 fps: 24
+target_seconds: 45
+music_level: 0.42
+fallback_clips_dir: test_clips   # stand-ins until every Wan clip exists
+
+shots:
+  - id: hook
+    clip: hook
+    characters: [host]
+    title: HOW DO ANIMALS SLEEP?
+    sticker: pose_thinking
+    lines:
+      - { id: L01, character: host, line: "Did you know animals sleep in the strangest ways?" }
+
+  - id: flamingo
+    clip: flamingo
+    characters: [host]
+    lines:
+      - { id: L02, character: host, line: "Flamingos often snooze on one leg." }
+      - { id: L03, character: host, line: "Tucking the other leg in may help them stay warm." }
+      - { id: M_flamingo, character: host, map_line: true, line: "Most of them live around the salty lakes of East Africa." }
+    map:
+      label: "Most found: East Africa's salty lakes"
+      region: [24, 52, -12, 10]
+      pins: [[0.25, 36.1], [-0.36, 36.08], [-2.42, 36.0], [-1.9, 36.3]]   # Bogoria, Nakuru, Natron, Magadi
+
+  - id: bats
+    clip: bats
+    characters: [host]
+    lines:
+      - { id: L04, character: host, line: "Bats sleep hanging upside down by their feet." }
+      - { id: L05, character: host, line: "When they wake up, they just let go and fly!" }
+      - { id: M_bats, character: host, map_line: true, line: "Most kinds of bats live in warm, tropical rainforests." }
+    map:
+      label: "Most found: tropical rainforests"
+      pins: [[-3, -62], [-8, -55], [0, 22], [2, 15], [1, 114], [-3, 120]]  # Amazon, Congo, SE Asia
+
+  - id: dolphin
+    clip: dolphin
+    characters: [host]
+    lines:
+      - { id: L06, character: host, line: "Dolphins rest one half of their brain at a time." }
+      - { id: L07, character: host, line: "The other half stays alert, with one eye open!" }
+      - { id: M_dolphin, character: host, map_line: true, line: "You'll find them in warm coastal seas all around the world." }
+    map:
+      label: "Most found: warm coastal seas"
+      pins: [[27, -88], [26, -80], [37, 15], [-28, 154], [-33, 27]]
+
+  - id: otters
+    clip: otters
+    characters: [host]
+    lines:
+      - { id: L08, character: host, line: "Sea otters hold paws while they sleep." }
+      - { id: L09, character: host, line: "That way, they don't drift apart!" }
+      - { id: M_otter, character: host, map_line: true, line: "Most sea otters live along the coast of Alaska." }
+    map:
+      label: "Most found: the coast of Alaska"
+      region: [-180, -125, 48, 66]
+      pins: [[52.5, -172], [57.5, -152.5], [60.6, -147], [57, -135]]
+
+  - id: giraffe
+    clip: giraffe
+    characters: [host]
+    lines:
+      - { id: L10, character: host, line: "Giraffes nap for just a few minutes at a time." }
+      - { id: L11, character: host, line: "They rest their head on their back, like a pillow!" }
+      - { id: M_giraffe, character: host, map_line: true, line: "Most giraffes roam the savannas of East and Southern Africa." }
+    map:
+      label: "Most found: East & Southern Africa"
+      region: [5, 45, -32, 8]
+      pins: [[-1.5, 35.1], [-2.5, 34.9], [-19.5, 23.5], [-19, 16], [-24, 31.5]]
+
+  - id: outro
+    clip: outro
+    characters: [host]
+    title: WHICH ONE ARE YOU?
+    sticker: pose_front
+    lines:
+      - { id: L12, character: host, line: "Which animal sleeps most like you?" }
+      - { id: L13, character: host, line: "Tell us in the comments!" }

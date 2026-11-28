@@ -134,3 +134,16 @@ Diffusion would all go in this way.
 ```bash
 python -m pytest
 ```
+
+## Narrated shorts (voice-timed, one-pass render)
+
+`python -m studio short <episode>` renders a whole short in one pass from `shots.yaml`:
+- **Voice first.** Each narration line is its own audio file (`output/<ep>/lines/<id>.mp3`). The
+  renderer measures every line, then times shot cuts, pauses, captions and map pins from the voice,
+  so nothing drifts out of sync. Pauses are spread to land exactly on `target_seconds`.
+- **Animated pictures.** `scripts/wan_batch.py episodes/<ep>/animation.yaml` makes one Wan 2.2 clip
+  per scene. It skips clips that already exist, so you can re-run it after the free GPU allowance resets.
+- **Captions** highlight each word as it's spoken. **Map pins** drop when the "where it lives" line
+  starts. A soft music-box bed dips under the voice, with a whoosh on cuts and a pop on pins. The
+  final mix is normalised to -14 LUFS.
+- `timing.json` and the `.srt` file record exactly when every line plays.

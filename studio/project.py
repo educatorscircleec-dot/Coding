@@ -45,7 +45,7 @@ class Shot:
             action=d.get("action", ""),
             motion=d.get("motion", ""),
             duration=float(d.get("duration", 4)),
-            dialogue=list(d.get("dialogue") or []),
+            dialogue=list(d.get("dialogue") or d.get("lines") or []),
             extra=dict(d),
         )
 
@@ -115,11 +115,11 @@ class Project:
                     errors.append(f"{where}: dialogue from unknown character '{speaker}'")
                 elif speaker not in s.characters:
                     errors.append(f"{where}: '{speaker}' speaks but is not listed in characters")
-            if not s.action:
+            if not s.action and "lines" not in s.extra:
                 errors.append(f"{where}: missing 'action'")
             st = s.extra.get("sticker")
             if st and not (self.root / "brand" / "stickers" / f"{st}.png").exists():
                 errors.append(f"{where}: sticker '{st}' not found in brand/stickers/")
-            if not 1 <= s.duration <= 5:
+            if "lines" not in s.extra and not 1 <= s.duration <= 5:
                 errors.append(f"{where}: duration {s.duration}s outside the 1-5 s clip range")
         return errors

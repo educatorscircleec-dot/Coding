@@ -9,6 +9,7 @@
     python -m studio voice ep001     # dialogue -> speech (Kokoro, offline)
     python -m studio assemble ep001
     python -m studio render ep001       # keyframes + animate + assemble
+    python -m studio short short001  # narrated short: voice-timed, synced, one pass
     python -m studio new-episode ep002 "Too Many Ramps"
 """
 
@@ -257,6 +258,18 @@ def cmd_motion(project: Project, args) -> int:
     return 0
 
 
+def cmd_short(project: Project, args) -> int:
+    """One-pass synced render of a narrated short (see studio/short.py)."""
+    from . import short
+    from .project import _load_yaml
+
+    _require_valid(project, args.episode)
+    spec = _load_yaml(project.root / "episodes" / args.episode / "shots.yaml")
+    out = short.render_short(project, args.episode, spec)
+    print(f"wrote {out.relative_to(project.root)}")
+    return 0
+
+
 def cmd_render(project: Project, args) -> int:
     args.provider = None
     for step in (cmd_keyframes, cmd_animate, cmd_assemble):
@@ -310,6 +323,10 @@ def main(argv: list[str] | None = None) -> int:
         if has_provider:
             sp.add_argument("--provider", help="override provider from style.yaml")
         sp.set_defaults(fn=fn)
+
+    sh = sub.add_parser("short", help="one-pass synced render of a narrated short")
+    sh.add_argument("episode")
+    sh.set_defaults(fn=cmd_short)
 
     a = sub.add_parser("assemble", help="join clips into the episode + subtitles")
     a.add_argument("episode")
