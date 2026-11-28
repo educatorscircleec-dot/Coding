@@ -62,3 +62,8 @@ jobs:
         and swaying, water ripples around its leg, stars twinkle, then the flamingo slowly lifts its head, blinks,
         looks around and gently fluffs its wings, still standing on one leg, lily pads bob on the water
       seconds: 5.0
+# Production note (2026-11-28): dolphin, otters and giraffe line clips were made with the
+# same Wan 2.2 model through fal (paid, 480p, input padded to 16:9 and cropped back to square).
+# The AI's giraffe "back to sleep" clips warped its head, so line 2 is the "wake up and look
+# around" clip played in reverse (the head lowers back onto its back), and line 3 is the free
+# layered live-motion clip (output/short001/motion/giraffe_2.mp4).
