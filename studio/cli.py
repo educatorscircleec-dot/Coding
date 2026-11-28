@@ -287,9 +287,18 @@ def cmd_livemotion(project: Project, args) -> int:
         tm = timing[shot_id]
         b = [0.0] + [l["start"] - tm["start"] for l in tm["lines"][1:]] + [tm["end"] - tm["start"]]
         windows = list(zip(b[:-1], b[1:]))
-        outs = livemotion.render_segments(project.root / sc["image"], sc["recipe"], windows,
-                                          project.root / spec["output"] / name,
-                                          fps=project.fps(args.episode))
+        if sc.get("layered"):
+            from . import cutout
+            img = project.root / sc["image"]
+            mask = cutout.animal_mask(img, project.root / spec["output"] / "masks" / f"{name}.png",
+                                      keep=sc.get("keep"))
+            outs = cutout.render_layered(img, mask, sc, windows,
+                                         project.root / spec["output"] / name,
+                                         fps=project.fps(args.episode))
+        else:
+            outs = livemotion.render_segments(project.root / sc["image"], sc["recipe"], windows,
+                                              project.root / spec["output"] / name,
+                                              fps=project.fps(args.episode))
         print(f"[{name}] " + ", ".join(o.name for o in outs))
     return 0
 
