@@ -28,3 +28,14 @@ animate:
 brand:
   logo: brand/logos/educrew.png
   logo_scale: 0.2          # fraction of frame width
+  # Brand promotion added to the end of every video (python -m studio mathshort ...)
+  promo:
+    enabled: true
+    name: EduCrew Academic Solutions
+    lines:
+      - "Academic Content | Curriculum | Instructional Design"
+      - "{y:Mathematics}  •  {p:English Language Arts}  •  {g:Science}"
+      - "End-to-end academic projects for K-12 and beyond"
+    cta: "Follow for more!"
+    sticker: teach_inspire
+    voice: "Brought to you by EduCrew Academic Solutions. Academic content, curriculum and instructional design, for K-12 and beyond. Follow for more!"

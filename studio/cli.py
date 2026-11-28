@@ -310,6 +310,11 @@ def cmd_mathshort(project: Project, args) -> int:
 
     _require_valid(project, args.episode)
     spec = _load_yaml(project.root / "episodes" / args.episode / "shots.yaml")
+    promo = project.style.get("brand", {}).get("promo", {})
+    if promo.get("enabled") and not any(s.get("promo") for s in spec["shots"]):
+        # every video ends with the EduCrew brand promotion
+        spec["shots"].append({"id": "promo", "promo": True,
+                              "lines": [{"id": "PROMO", "line": promo["voice"]}]})
     vs = spec.get("voice", {})
     lines_dir = _ep_out(project, args.episode) / "lines"
     tts = None

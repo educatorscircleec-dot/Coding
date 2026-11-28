@@ -108,6 +108,77 @@ def board_card(w, h) -> Image.Image:
     return card
 
 
+# ---------------------------------------------------------------- lively extras
+def stage_card(w: int, h: int, t: float) -> Image.Image:
+    """Game-show stage: dark backdrop, sweeping spotlights, curtains, glowing floor."""
+    yy = np.linspace(0, 1, h)[:, None, None]
+    arr = (np.array([48, 22, 92]) * (1 - yy) + np.array([22, 10, 48]) * yy).repeat(w, axis=1)
+    img = Image.fromarray(arr.astype(np.uint8)).convert("RGBA")
+    light = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    ld = ImageDraw.Draw(light)
+    for k, (base_x, col) in enumerate([(0.2, (255, 220, 120)), (0.8, (160, 220, 255)), (0.5, (255, 160, 220))]):
+        ang = math.sin(t * 0.9 + k * 2.1) * 0.35
+        bx, by = w * base_x, -40
+        tx = w * 0.5 + math.sin(ang) * w * 0.8
+        ld.polygon([(bx, by), (tx - w * 0.18, h), (tx + w * 0.18, h)], fill=col + (38,))
+    img.alpha_composite(light.filter(ImageFilter.GaussianBlur(18)))
+    d = ImageDraw.Draw(img)
+    d.ellipse((-w * 0.2, h * 0.82, w * 1.2, h * 1.25), fill=(90, 50, 150))
+    for side in (0, 1):   # curtains with a gentle sway
+        sway = math.sin(t * 1.3 + side) * 6
+        x0 = 0 if side == 0 else w - w * 0.09
+        for j in range(4):
+            xx = x0 + j * w * 0.022 + sway
+            d.rounded_rectangle((xx, -20, xx + w * 0.03, h + 20), 12,
+                                fill=(200, 40, 70) if j % 2 == 0 else (170, 30, 60))
+    mask = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(mask).rounded_rectangle((0, 0, w - 1, h - 1), w // 18, fill=255)
+    img.putalpha(mask)
+    ImageDraw.Draw(img).rounded_rectangle((3, 3, w - 4, h - 4), w // 18, outline=INK, width=8)
+    return img
+
+
+class Confetti:
+    def __init__(self, W, n=140, seed=5):
+        rng = np.random.default_rng(seed)
+        self.p = [(rng.uniform(0, W), rng.uniform(-300, -20), rng.uniform(-120, 120), rng.uniform(380, 720),
+                   rng.uniform(0, 6.28), tuple(int(c) for c in rng.choice(
+                       [[255, 196, 0], [236, 72, 153], [34, 170, 110], [59, 130, 246], [255, 255, 255]])),
+                   rng.uniform(10, 22)) for _ in range(n)]
+
+    def draw(self, frame, t):
+        if t < 0 or t > 3.0:
+            return
+        d = ImageDraw.Draw(frame)
+        for x, y, vx, vy, ph, col, sz in self.p:
+            xx = x + vx * t + math.sin(t * 6 + ph) * 25
+            yy = y + vy * t
+            w = sz * abs(math.cos(t * 8 + ph)) + 3
+            d.rectangle((xx, yy, xx + w, yy + sz * 0.6), fill=col)
+
+
+def promo_frame(frame, t, dur, assets, W, H):
+    """EduCrew brand end card (added to every video)."""
+    logo, sticker, texts = assets["logo"], assets["sticker"], assets["texts"]
+    p = ease_out_back(t / 0.6)
+    if p > 0:
+        size = max(1, int(logo.width * min(p, 1.1)))
+        lg = logo.resize((size, size)).rotate(math.sin(t * 2) * 3, resample=Image.BICUBIC)
+        frame.alpha_composite(lg, ((W - lg.width) // 2, int(H * 0.07) + (logo.height - size) // 2))
+    y = int(H * 0.07) + logo.height + 30
+    for i, img in enumerate(texts):
+        q = ease_out_back((t - 0.5 - i * 0.35) / 0.4)
+        if q > 0:
+            im = img if q == 1 else img.resize((max(1, int(img.width * q)), max(1, int(img.height * q))))
+            frame.alpha_composite(im, ((W - im.width) // 2, y + (img.height - im.height) // 2))
+        y += img.height + 18
+    if sticker is not None:
+        q = ease_out_back((t - 0.8) / 0.5)
+        if q > 0:
+            st = sticker.resize((max(1, int(sticker.width * q)), max(1, int(sticker.height * q))))
+            frame.alpha_composite(st, ((W - st.width) // 2, int(H - st.height - H * 0.03 + math.sin(t * 2.6) * 6)))
+
+
 def render_mathshort(project, ep_id: str, spec: dict) -> Path:
     root = project.root
     base = project.output_dir / ep_id
@@ -161,6 +232,40 @@ def render_mathshort(project, ep_id: str, spec: dict) -> Path:
                 tmpl = sw_["template"]
                 l.swap_parts = (tmpl, a, b)
 
+        for l in s.lines:
+            l.sticker = []
+            if l.spec.get("sticker"):
+                raw, durs = load_sticker_frames(root / "brand" / "stickers" / f"{l.spec['sticker']}.png")
+                sw = int(W * 0.30)
+                l.sticker = [_with_shadow(f.resize((sw, round(f.height * sw / f.width)), Image.LANCZOS))
+                             for f in raw]
+                l.sticker_durs = durs
+    promo_assets = None
+    if any(s.spec.get("promo") for s in shots):
+        pc = brand.get("promo", {})
+        texts = [row_image("{y:" + pc.get("name", "EduCrew Academic Solutions") + "}", 78, W - 2 * m)]
+        for t_ in pc.get("lines", []):
+            texts.append(row_image(t_, 54, W - 2 * m))
+        if pc.get("cta"):
+            texts.append(row_image("{g:" + pc["cta"] + "}", 72, W - 2 * m))
+        chip_bg = []
+        for img in texts:
+            chip = Image.new("RGBA", (img.width + 40, img.height + 16), (255, 255, 255, 235))
+            mask = Image.new("L", chip.size, 0)
+            ImageDraw.Draw(mask).rounded_rectangle((0, 0, chip.width - 1, chip.height - 1), 24, fill=255)
+            chip.putalpha(mask)
+            chip.alpha_composite(img, (20, 8))
+            chip_bg.append(chip)
+        st = None
+        if pc.get("sticker"):
+            raw, _ = load_sticker_frames(root / "brand" / "stickers" / f"{pc['sticker']}.png")
+            sw = int(W * 0.42)
+            st = _with_shadow(raw[0].resize((sw, round(raw[0].height * sw / raw[0].width)), Image.LANCZOS))
+        promo_assets = {"logo": _round_logo(root / brand["logo"], int(W * 0.42)), "sticker": st,
+                        "texts": chip_bg}
+    confetti = Confetti(W)
+    from .scenes import doors_scene
+
     all_lines = [l for s in shots for l in s.lines]
     silent = base / f"{ep_id}_video.mp4"
     out = base / f"{ep_id}.mp4"
@@ -181,8 +286,34 @@ def render_mathshort(project, ep_id: str, spec: dict) -> Path:
         hx = m * 2 + (logo.width if logo else 0)
         frame.alpha_composite(title_img, (hx, int(top_h * 0.22)))
         frame.alpha_composite(ep_chip, (hx + 6, int(top_h * 0.22) + title_img.height + 4))
-        # board card gently breathes
-        frame.alpha_composite(card, (m - 40, card_y - 40))
+        si = next(i for i, s_ in enumerate(shots) if ts < s_.end or i == len(shots) - 1)
+        if shots[si].spec.get("promo"):
+            frame = bg.copy()
+            floaters.draw(frame, ts)
+            promo_frame(frame, ts - shots[si].start, shots[si].end - shots[si].start, promo_assets, W, H)
+            spoken = next((l for l in shots[si].lines if l.start - 0.05 <= ts < l.start + l.dur + 0.25), None)
+            proc.stdin.write(frame.convert("RGB").tobytes())
+            continue
+        cur = None
+        for l in all_lines:
+            if ts >= l.start - 0.12:
+                cur = l
+        if cur is not None and cur.spec.get("doors") is not None:
+            lt0 = ts - cur.start
+            stage = stage_card(card_w, card_h, ts)
+            doors_scene(stage, cur.spec["doors"], lt0, cur.dur)
+            # camera punch-in on key moments
+            if cur.spec.get("punch"):
+                k = math.exp(-max(lt0 - 0.1, 0) * 3) * (lt0 > 0.1)
+                sc = 1 + 0.07 * k
+                stage = stage.resize((int(card_w * sc), int(card_h * sc)))
+            sh = _with_shadow(stage)
+            frame.alpha_composite(sh, (m - 40 - (stage.width - card_w) // 2,
+                                       card_y - 40 - (stage.height - card_h) // 2))
+            if cur.spec.get("confetti"):
+                confetti.draw(frame, lt0 - float(cur.spec.get("confetti_at", 0.5)) * cur.dur)
+        else:
+            frame.alpha_composite(card, (m - 40, card_y - 40))
 
         # which line's board is showing (hold the last one until the next line starts)
         cur = None
@@ -240,6 +371,13 @@ def render_mathshort(project, ep_id: str, spec: dict) -> Path:
         si = next(i for i, s in enumerate(shots) if ts < s.end or i == len(shots) - 1)
         s = shots[si]
         cap_x, cap_w = m, W - 2 * m
+        line_now = next((l for l in s.lines if l.start - 0.12 <= ts), None)
+        for l in s.lines:
+            if ts >= l.start - 0.12:
+                line_now = l
+        if line_now is not None and getattr(line_now, "sticker", None):
+            s = type("S", (), {"sticker": line_now.sticker, "sticker_durs": line_now.sticker_durs,
+                               "start": line_now.start, "end": s.end})()
         if s.sticker:
             lt = ts - s.start
             tot = sum(s.sticker_durs)
