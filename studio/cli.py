@@ -4,6 +4,7 @@
     python -m studio prompts ep001
     python -m studio keyframes ep001 [--provider huggingface] [--only s020] [--force]
     python -m studio animate ep001   [--provider wan]         [--only s020] [--force]
+    python -m studio voice ep001     # dialogue -> speech (Kokoro, offline)
     python -m studio assemble ep001
     python -m studio render ep001       # keyframes + animate + assemble
     python -m studio new-episode ep002 "Too Many Ramps"
@@ -109,7 +110,7 @@ def cmd_assemble(project: Project, args) -> int:
     _require_valid(project, args.episode)
     ep = project.episode(args.episode)
     base = _ep_out(project, args.episode)
-    clips, subs, t = [], [], 0.0
+    clips, subs, starts, t = [], [], [], 0.0
     for s in ep.shots:
         clip = base / "clips" / f"{s.id}.mp4"
         if not clip.exists():
@@ -123,12 +124,52 @@ def cmd_assemble(project: Project, args) -> int:
             name = project.characters[line["character"]].get("name", line["character"])
             subs.append((t + n * seg, t + (n + 1) * seg, name, line["line"]))
         clips.append(clip)
+        starts.append((s.id, t))
         t += d
     w, h = project.resolution(args.episode)
     video = assemble.concat(clips, base / f"{ep.id}.mp4", project.style.get("fps", 16), (w, h))
+    dialogue_wavs = [(base / "audio" / f"{sid}.wav", start) for sid, start in starts]
+    dialogue_wavs = [(p, start) for p, start in dialogue_wavs if p.exists()]
+    if dialogue_wavs:
+        track = assemble.mix_dialogue(dialogue_wavs, t, base / "audio" / "_episode_mix.wav")
+        assemble.add_audio(video, track)
+        print(f"mixed dialogue from {len(dialogue_wavs)} shot(s) into the episode")
     srt = assemble.write_srt(subs, base / f"{ep.id}.srt")
     print(f"wrote {video.relative_to(project.root)} ({t:.1f}s, {len(clips)} shots)")
     print(f"wrote {srt.relative_to(project.root)} ({len(subs)} subtitle lines)")
+    return 0
+
+
+def cmd_voice(project: Project, args) -> int:
+    """Speak each shot's dialogue into output/<ep>/audio/<shot>.wav, plus a full read-through."""
+    from . import voice
+
+    _require_valid(project, args.episode)
+    ep = project.episode(args.episode)
+    base = _ep_out(project, args.episode)
+    model_dir = project.root / project.style.get("voice", {}).get("model_dir", "models/kokoro")
+    tts = voice.KokoroVoice(model_dir)
+    wanted = set(args.only or [s.id for s in ep.shots])
+    readthrough = []
+    for s in ep.shots:
+        if s.id not in wanted or not s.dialogue:
+            continue
+        parts = []
+        for line in s.dialogue:
+            ch = project.characters[line["character"]]
+            parts.append(tts.speak(line["line"], ch.get("tts_voice", "af_heart"),
+                                   float(ch.get("tts_speed", 1.0))))
+            parts.append(voice.silence(voice.GAP_BETWEEN_LINES))
+        audio = voice.np.concatenate(parts[:-1])
+        out = voice.write_wav(audio, base / "audio" / f"{s.id}.wav")
+        secs = len(audio) / voice.SAMPLE_RATE
+        flag = "  <-- longer than the shot; trim the line or lengthen the shot" \
+            if secs > s.duration else ""
+        print(f"[{s.id}] {secs:4.1f}s of {s.duration:g}s  {out.relative_to(project.root)}{flag}")
+        readthrough += [audio, voice.silence(0.5)]
+    if readthrough:
+        rt = voice.write_wav(voice.np.concatenate(readthrough), base / "voiceover.wav")
+        print(f"wrote {rt.relative_to(project.root)} (full read-through)")
     return 0
 
 
@@ -173,6 +214,7 @@ def main(argv: list[str] | None = None) -> int:
         ("keyframes", cmd_keyframes, True),
         ("animate", cmd_animate, True),
         ("render", cmd_render, False),
+        ("voice", cmd_voice, False),
     ]:
         sp = sub.add_parser(name)
         sp.add_argument("episode")

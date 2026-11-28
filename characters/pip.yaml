@@ -6,3 +6,6 @@ visual: >-
 personality: curious, eager, a little impatient, never gives up
 voice: bright and quick, slight mechanical warble
 reference_image: null
+# Text-to-speech (Kokoro voice id + speed), used by `python -m studio voice`
+tts_voice: af_heart
+tts_speed: 1.0

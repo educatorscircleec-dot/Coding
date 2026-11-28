@@ -56,6 +56,25 @@ python -m studio assemble ep001
 - Each step reads its keyframe or clip from disk, so you can drop in your own image (for example a
   hand-fixed keyframe) at `output/ep001/keyframes/s020.png` and only re-animate that shot.
 
+## Voices
+
+`python -m studio voice <episode>` reads every shot's dialogue aloud with
+[Kokoro](https://huggingface.co/hexgrad/Kokoro-82M), an open text-to-speech model that runs on the CPU
+for free. It writes one WAV file per shot, plus `voiceover.wav`, a read-through of the whole script.
+It also warns you when a line runs longer than its shot. `assemble` then lays each shot's audio
+under that shot.
+
+One-time setup:
+
+```bash
+pip install -e ".[voice]"
+HF_HUB_DISABLE_XET=1 python -c "from huggingface_hub import hf_hub_download as d; \
+  [d('fastrtc/kokoro-onnx', f, local_dir='models/kokoro') for f in ('kokoro-v1.0.onnx','voices-v1.0.bin')]"
+```
+
+Cast each voice in the character file with `tts_voice` and `tts_speed`. Voice ids starting `af_`/`am_`
+are American and `bf_`/`bm_` are British; there are 54 voices in all.
+
 ### Adding another provider
 
 Subclass `KeyframeProvider` or `AnimateProvider` in `studio/providers/`, then register the new
@@ -82,7 +101,7 @@ Diffusion would all go in this way.
 
 ## Not yet covered (next steps)
 
-- Voice and lip-sync: dialogue is already structured per shot, ready for a TTS provider
+- Lip-sync
 - Music and sound-effect layers in `assemble`
 - Character-reference or LoRA keyframes for stronger consistency
 

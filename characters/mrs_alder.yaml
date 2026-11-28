@@ -6,3 +6,5 @@ visual: >-
 personality: patient, dry humour, secretly loves Pip's chaos
 voice: warm, low, unhurried
 reference_image: null
+tts_voice: bf_emma
+tts_speed: 0.85
